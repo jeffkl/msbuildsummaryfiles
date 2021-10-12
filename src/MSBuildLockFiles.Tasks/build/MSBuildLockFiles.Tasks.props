@@ -1,0 +1,68 @@
+﻿<Project>
+  <UsingTask TaskName="WriteTargetFrameworkLockFile"
+             AssemblyFile="$([MSBuild]::ValueOrDefault('$(MSBuildLockFilesTaskAssebly)', '$(MSBuildThisFileDirectory)net472\MSBuildLockFiles.Tasks.dll'))"
+             Condition="'$(MSBuildRuntimeType)' == 'Full'" />
+
+  <UsingTask TaskName="WriteTargetFrameworkLockFile"
+             AssemblyFile="$([MSBuild]::ValueOrDefault('$(MSBuildLockFilesTaskAssebly)', '$(MSBuildThisFileDirectory)netstandard2.0\MSBuildLockFiles.Tasks.dll'))"
+             Condition="'$(MSBuildRuntimeType)' == 'Core'" />
+
+  <UsingTask TaskName="WriteBuildLockFile"
+             AssemblyFile="$([MSBuild]::ValueOrDefault('$(MSBuildLockFilesTaskAssebly)', '$(MSBuildThisFileDirectory)net472\MSBuildLockFiles.Tasks.dll'))"
+             Condition="'$(MSBuildRuntimeType)' == 'Full'" />
+
+  <UsingTask TaskName="WriteBuildLockFile"
+             AssemblyFile="$([MSBuild]::ValueOrDefault('$(MSBuildLockFilesTaskAssebly)', '$(MSBuildThisFileDirectory)netstandard2.0\MSBuildLockFiles.Tasks.dll'))"
+             Condition="'$(MSBuildRuntimeType)' == 'Core'" />
+
+  <Target Name="WriteLockFileForSingleTargetFramework"
+          AfterTargets="AfterBuild"
+          Condition="'$(IsInnerBuild)' == 'true'">
+    <ItemGroup>
+      <_FolderRoots Remove="@(_FolderRoots)" />
+      <_FolderRoots Include="#OutputPath" Path="$([MSBuild]::NormalizePath($(OutputPath)))" />
+      <_FolderRoots Include="IntermediateOutputPath" Path="$([MSBuild]::NormalizePath($(IntermediateOutputPath)))" />
+      <_FolderRoots Include="MSBuildProjectExtensionsPath" Path="$(MSBuildProjectExtensionsPath)" />
+      <_FolderRoots Include="NuGetPackageRoot" Path="$(NuGetPackageRoot)" />
+      <_FolderRoots Include="#MSBuildProjectDirectory" Path="$(MSBuildProjectDirectory)\" />
+      <_FolderRoots Include="FrameworkAssemblies" Path="$(FrameworkPathOverride)" />
+      <_FolderRoots Include="MicrosoftNETBuildExtensions" Path="$([System.IO.Path]::GetDirectoryName($(MicrosoftNETBuildExtensionsTargets)))" />
+      <_FolderRoots Include="NetCoreTargetingPackRoot" Path="$(NetCoreTargetingPackRoot)" />
+    </ItemGroup>
+
+    <WriteTargetFrameworkLockFile
+      References="@(ReferencePathWithRefAssemblies)"
+      FolderRoots="@(_FolderRoots)"
+      DefineConstants="$(DefineConstants)"
+      Sources="@(Compile)"
+      TargetFramework="$(TargetFramework)"
+      Debug="$(MSBuildLockFilesDebug)"
+      FileWrites="@(FileWrites)"
+      FilePath="$(IntermediateOutputPath)\msbuildlockfile.yml" />
+  </Target>
+
+  <Target Name="WriteBuildLockFile"
+          AfterTargets="Pack"
+          DependsOnTargets="DispatchToInnerBuilds"
+          Condition="'$(IsInnerBuild)' != 'true'">
+
+    <MSBuild Projects="@(_InnerBuildProjects)"
+             Condition="'@(_InnerBuildProjects)' != '' "
+             Targets="GetMSBuildLockFileOutput"
+             BuildInParallel="$(BuildInParallel)">
+      <Output ItemName="Asdf" TaskParameter="TargetOutputs" />
+    </MSBuild>
+
+    <WriteBuildLockFile LockFiles="@(Asdf)"
+                        FilePath="$(MSBuildProjectDirectory)\build.lock.yml"
+                        Debug="$(MSBuildLockFilesDebug)" />
+
+  </Target>
+
+  <Target Name="GetMSBuildLockFileOutput"
+          Returns="@(Stuff)">
+    <ItemGroup>
+      <Stuff Include="$(IntermediateOutputPath)\msbuildlockfile.yml" />
+    </ItemGroup>
+  </Target>
+</Project>
