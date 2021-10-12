@@ -91,7 +91,7 @@ namespace MSBuildLockFiles.Tasks
 
                 if (fullPath.StartsWith(path))
                 {
-                    return fullPath.Replace(path, name.StartsWith("#") ? string.Empty : $"{{{name}}}").Replace(@"\", "/");
+                    return fullPath.Replace(path, name.StartsWith("#") ? string.Empty : $"{{{name}}}").Replace(@"\", "/").Trim('/');
                 }
             }
 
