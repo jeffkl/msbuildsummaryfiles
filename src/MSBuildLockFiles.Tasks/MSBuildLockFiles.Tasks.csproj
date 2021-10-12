@@ -6,7 +6,6 @@
     <PackageReference Include="Microsoft.Build.Utilities.Core" ExcludeAssets="Runtime" />
     <PackageReference Include="Microsoft.CodeAnalysis" />
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp" />
-    <PackageReference Include="YamlDotNet" VersionOverride="11.2.1" />
   </ItemGroup>
   <ItemGroup>
     <None Include="build\MSBuildLockFiles.Tasks.props" />
