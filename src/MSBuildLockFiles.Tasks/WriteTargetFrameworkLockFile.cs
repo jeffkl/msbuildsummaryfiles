@@ -84,6 +84,8 @@ namespace MSBuildLockFiles.Tasks
                 string name = folderRoot.ItemSpec;
                 string path = folderRoot.GetMetadata("Path");
 
+                bool allowRelative = folderRoot.GetMetadata("AllowRelative") == bool.TrueString;
+
                 if (string.IsNullOrWhiteSpace(path))
                 {
                     continue;
@@ -92,6 +94,12 @@ namespace MSBuildLockFiles.Tasks
                 if (fullPath.StartsWith(path))
                 {
                     return fullPath.Replace(path, name.StartsWith("#") ? string.Empty : $"{{{name}}}").Replace(@"\", "/").Trim('/');
+                }
+
+                if(allowRelative)
+                {
+                    // TODO: Make the fullPath relative to path
+
                 }
             }
 
