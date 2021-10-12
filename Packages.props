@@ -1,14 +1,13 @@
 <Project>
   <PropertyGroup>
-    <MSBuildPackageVersion>16.11.0</MSBuildPackageVersion>
+    <MSBuildPackageVersion Condition="'$(TargetFramework)' == 'net46'">15.9.20</MSBuildPackageVersion>
+    <MSBuildPackageVersion Condition="'$(MSBuildPackageVersion)' == ''">16.11.0</MSBuildPackageVersion>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Update="Microsoft.Build" Version="$(MSBuildPackageVersion)" />
     <PackageReference Update="Microsoft.Build.Framework" Version="$(MSBuildPackageVersion)" />
     <PackageReference Update="Microsoft.Build.Utilities.Core" Version="$(MSBuildPackageVersion)" />
     <PackageReference Update="Microsoft.NET.Test.Sdk" Version="16.11.0" />
-    <PackageReference Update="Microsoft.CodeAnalysis" Version="3.11.0" />
-    <PackageReference Update="Microsoft.CodeAnalysis.CSharp" Version="3.11.0" />
     <PackageReference Update="MSBuild.ProjectCreation" Version="6.3.3" />
     <PackageReference Update="Shouldly" Version="4.0.3" />
     <PackageReference Update="xunit" Version="2.4.1" />
