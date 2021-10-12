@@ -71,7 +71,7 @@ jobs:
       with:
         name: test-results-win
         path: '**/TestResults/*.trx'
-        if-no-files-found: warn
+        if-no-files-found: error
 
     - name: Upload Artifacts
       uses: actions/upload-artifact@v2
@@ -128,7 +128,7 @@ jobs:
       with:
         name: test-results-linux
         path: '**/TestResults/*.trx'
-        if-no-files-found: warn
+        if-no-files-found: error
 
     - name: Upload Artifacts
       uses: actions/upload-artifact@v2
@@ -181,7 +181,7 @@ jobs:
       with:
         name: test-results-macos
         path: '**/TestResults/*.trx'
-        if-no-files-found: warn
+        if-no-files-found: error
 
     - name: Upload Artifacts
       uses: actions/upload-artifact@v2

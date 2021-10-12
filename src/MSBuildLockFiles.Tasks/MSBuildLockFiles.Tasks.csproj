@@ -1,15 +1,15 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFrameworks>net472;netstandard2.0</TargetFrameworks>
+    <NoWarn>$(NoWarn);NU5128</NoWarn>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <Deterministic>true</Deterministic>
+    <BuildOutputTargetFolder>build\</BuildOutputTargetFolder>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Microsoft.Build.Utilities.Core" ExcludeAssets="Runtime" />
-    <PackageReference Include="Microsoft.CodeAnalysis" />
-    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" />
-    <PackageReference Include="YamlDotNet" VersionOverride="11.2.1" />
+    <PackageReference Include="Microsoft.Build.Utilities.Core" PrivateAssets="All" ExcludeAssets="Runtime" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="build\MSBuildLockFiles.Tasks.props" />
-    <None Include="build\MSBuildLockFiles.Tasks.targets" />
+    <None Include="build\**" Pack="true" PackagePath="build\" />
   </ItemGroup>
 </Project>

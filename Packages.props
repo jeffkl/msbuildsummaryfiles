@@ -1,18 +1,22 @@
 <Project>
   <PropertyGroup>
-    <MSBuildPackageVersion>16.11.0</MSBuildPackageVersion>
+    <MSBuildPackageVersion Condition="'$(TargetFramework)' == 'net46'">15.9.20</MSBuildPackageVersion>
+    <MSBuildPackageVersion Condition="'$(MSBuildPackageVersion)' == ''">16.11.0</MSBuildPackageVersion>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Update="Microsoft.Build" Version="$(MSBuildPackageVersion)" />
     <PackageReference Update="Microsoft.Build.Framework" Version="$(MSBuildPackageVersion)" />
     <PackageReference Update="Microsoft.Build.Utilities.Core" Version="$(MSBuildPackageVersion)" />
     <PackageReference Update="Microsoft.NET.Test.Sdk" Version="16.11.0" />
-    <PackageReference Update="Microsoft.CodeAnalysis" Version="3.11.0" />
-    <PackageReference Update="Microsoft.CodeAnalysis.CSharp" Version="3.11.0" />
+    <PackageReference Update="MSBuild.ProjectCreation" Version="6.3.3" />
+    <PackageReference Update="Shouldly" Version="4.0.3" />
+    <PackageReference Update="xunit" Version="2.4.1" />
+    <PackageReference Update="xunit.runner.visualstudio" Version="2.4.3" />
   </ItemGroup>
 
   <ItemGroup>
     <GlobalPackageReference Include="Microsoft.Build.Artifacts" Version="2.2.0" Condition="'$(EnableArtifacts)' != 'false'" />
+    <GlobalPackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" Condition="'$(EnableSourceLink)' != 'false'" />
     <GlobalPackageReference Include="Nerdbank.GitVersioning" Version="3.4.240" Condition="'$(EnableGitVersioning)' != 'false'" />
   </ItemGroup>
 </Project>

@@ -1,18 +1,18 @@
 ﻿<Project>
   <UsingTask TaskName="WriteTargetFrameworkLockFile"
-             AssemblyFile="$([MSBuild]::ValueOrDefault('$(MSBuildLockFilesTaskAssebly)', '$(MSBuildThisFileDirectory)net472\MSBuildLockFiles.Tasks.dll'))"
+             AssemblyFile="$([MSBuild]::ValueOrDefault('$(MSBuildLockFilesTaskAssembly)', '$(MSBuildThisFileDirectory)net472\MSBuildLockFiles.Tasks.dll'))"
              Condition="'$(MSBuildRuntimeType)' == 'Full'" />
 
   <UsingTask TaskName="WriteTargetFrameworkLockFile"
-             AssemblyFile="$([MSBuild]::ValueOrDefault('$(MSBuildLockFilesTaskAssebly)', '$(MSBuildThisFileDirectory)netstandard2.0\MSBuildLockFiles.Tasks.dll'))"
+             AssemblyFile="$([MSBuild]::ValueOrDefault('$(MSBuildLockFilesTaskAssembly)', '$(MSBuildThisFileDirectory)netstandard2.0\MSBuildLockFiles.Tasks.dll'))"
              Condition="'$(MSBuildRuntimeType)' == 'Core'" />
 
   <UsingTask TaskName="WriteBuildLockFile"
-             AssemblyFile="$([MSBuild]::ValueOrDefault('$(MSBuildLockFilesTaskAssebly)', '$(MSBuildThisFileDirectory)net472\MSBuildLockFiles.Tasks.dll'))"
+             AssemblyFile="$([MSBuild]::ValueOrDefault('$(MSBuildLockFilesTaskAssembly)', '$(MSBuildThisFileDirectory)net472\MSBuildLockFiles.Tasks.dll'))"
              Condition="'$(MSBuildRuntimeType)' == 'Full'" />
 
   <UsingTask TaskName="WriteBuildLockFile"
-             AssemblyFile="$([MSBuild]::ValueOrDefault('$(MSBuildLockFilesTaskAssebly)', '$(MSBuildThisFileDirectory)netstandard2.0\MSBuildLockFiles.Tasks.dll'))"
+             AssemblyFile="$([MSBuild]::ValueOrDefault('$(MSBuildLockFilesTaskAssembly)', '$(MSBuildThisFileDirectory)netstandard2.0\MSBuildLockFiles.Tasks.dll'))"
              Condition="'$(MSBuildRuntimeType)' == 'Core'" />
 
   <Target Name="WriteLockFileForSingleTargetFramework"
@@ -48,21 +48,20 @@
 
     <MSBuild Projects="@(_InnerBuildProjects)"
              Condition="'@(_InnerBuildProjects)' != '' "
-             Targets="GetMSBuildLockFileOutput"
+             Targets="GetTargetFrameworkLockFile"
              BuildInParallel="$(BuildInParallel)">
-      <Output ItemName="Asdf" TaskParameter="TargetOutputs" />
+      <Output TaskParameter="TargetOutputs" ItemName="TargetFrameworkLockFile" />
     </MSBuild>
 
-    <WriteBuildLockFile LockFiles="@(Asdf)"
+    <WriteBuildLockFile LockFiles="@(TargetFrameworkLockFile)"
                         FilePath="$(MSBuildProjectDirectory)\build.lock.yml"
                         Debug="$(MSBuildLockFilesDebug)" />
-
   </Target>
 
-  <Target Name="GetMSBuildLockFileOutput"
-          Returns="@(Stuff)">
+  <Target Name="GetTargetFrameworkLockFile"
+          Returns="@(TargetFrameworkLockFile)">
     <ItemGroup>
-      <Stuff Include="$(IntermediateOutputPath)\msbuildlockfile.yml" />
+      <TargetFrameworkLockFile Include="$(IntermediateOutputPath)\msbuildlockfile.yml" />
     </ItemGroup>
   </Target>
 </Project>
