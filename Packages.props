@@ -16,6 +16,7 @@
 
   <ItemGroup>
     <GlobalPackageReference Include="Microsoft.Build.Artifacts" Version="2.2.0" Condition="'$(EnableArtifacts)' != 'false'" />
+    <GlobalPackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" Condition="'$(EnableSourceLink)' != 'false'" />
     <GlobalPackageReference Include="Nerdbank.GitVersioning" Version="3.4.240" Condition="'$(EnableGitVersioning)' != 'false'" />
   </ItemGroup>
 </Project>
