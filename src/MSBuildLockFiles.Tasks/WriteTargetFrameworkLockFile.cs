@@ -58,17 +58,17 @@ namespace MSBuildLockFiles.Tasks
             writer.WriteLine("  outputs:");
             if (FileWrites?.Length > 0)
             {
-                foreach (string fullPath in FileWrites.Select(NormalizePath).OrderBy(i => i))
+                foreach (string format in FileWrites.GetNormalizedPaths(FolderRoots).OrderBy(i => i))
                 {
                     writer.Write("  - ");
-                    writer.WriteLine(fullPath);
+                    writer.WriteLine(format);
                 }
             }
 
             writer.WriteLine("  references:");
             if (References?.Length > 0)
             {
-                foreach (string normalizedPath in References.Select(NormalizePath).OrderBy(i => i))
+                foreach (string normalizedPath in References.GetNormalizedPaths(FolderRoots).OrderBy(i => i))
                 {
                     writer.Write("  - ");
                     writer.WriteLine(normalizedPath);
@@ -78,46 +78,16 @@ namespace MSBuildLockFiles.Tasks
             writer.WriteLine("  sources:");
             if (Sources?.Length > 0)
             {
-                foreach (string fullPath in Sources.Select(NormalizePath).OrderBy(i => i))
+                foreach (string normalizedPath in Sources.GetNormalizedPaths(FolderRoots).OrderBy(i => i))
                 {
                     writer.Write("  - ");
-                    writer.WriteLine(fullPath);
+                    writer.WriteLine(normalizedPath);
                 } 
             }
 
             return base.Execute();
         }
 
-        private string NormalizePath(ITaskItem taskItem)
-        {
-            string fullPath = taskItem.GetMetadata("FullPath");
-            string relativePath = string.Empty;
-
-            foreach (ITaskItem folderRoot in FolderRoots)
-            {
-                string name = folderRoot.ItemSpec;
-                // TODO: EnsureTrailingSlash for ToRelativePath() to work
-                string path = folderRoot.GetMetadata("Path");
-
-                bool allowRelative = string.Equals(bool.TrueString, folderRoot.GetMetadata("AllowRelative"), StringComparison.OrdinalIgnoreCase);
-
-                if (string.IsNullOrWhiteSpace(path))
-                {
-                    continue;
-                }
-
-                if (fullPath.StartsWith(path))
-                {
-                    return fullPath.Replace(path, name.StartsWith("#") ? string.Empty : $"{{{name}}}").Replace(@"\", "/").Trim('/');
-                }
-
-                if (allowRelative)
-                {
-                    relativePath = fullPath.ToRelativePath(path).Replace(@"\", "/").Trim('/');
-                }
-            }
-
-            return string.IsNullOrWhiteSpace(relativePath) ? fullPath : relativePath;
-        }
+        
     }
 }

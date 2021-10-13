@@ -36,12 +36,18 @@ namespace MSBuildLockFiles.Tasks.UnitTests
                 {
                     new TaskItem(Path.Combine(ProjectsRoot, "ProjectA", "bin", "Debug", "net472", "ProjectA.dll")),
                     new TaskItem(Path.Combine(ProjectsRoot, "ProjectA", "bin", "Debug", "net472", "ProjectA.pdb")),
+                    new TaskItem(Path.Combine(ProjectsRoot, "ProjectA", "obj", "Debug", "net472", "ProjectA.dll")),
+                    new TaskItem(Path.Combine(ProjectsRoot, "ProjectA", "obj", "Debug", "net472", "ProjectA.pdb")),
                 },
                 FolderRoots = new ITaskItem[]
                 {
                     new TaskItem("#OutputPath", new Dictionary<string, string>
                     {
                         ["Path"] = Path.Combine(ProjectsRoot, "ProjectA", "bin", "Debug", "net472")
+                    }),
+                    new TaskItem("!IntermediateOutputPath", new Dictionary<string, string>
+                    {
+                        ["Path"] = Path.Combine(ProjectsRoot, "ProjectA", "obj", "Debug", "net472")
                     }),
                     new TaskItem("#MSBuildProjectDirectory", new Dictionary<string, string>
                     {
