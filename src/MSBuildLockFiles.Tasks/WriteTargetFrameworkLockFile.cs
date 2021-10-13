@@ -1,4 +1,5 @@
 ﻿using Microsoft.Build.Framework;
+using System;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -84,7 +85,7 @@ namespace MSBuildLockFiles.Tasks
                 string name = folderRoot.ItemSpec;
                 string path = folderRoot.GetMetadata("Path");
 
-                bool allowRelative = folderRoot.GetMetadata("AllowRelative") == bool.TrueString;
+                bool allowRelative = string.Equals(bool.TrueString, folderRoot.GetMetadata("AllowRelative"), StringComparison.OrdinalIgnoreCase);
 
                 if (string.IsNullOrWhiteSpace(path))
                 {
@@ -96,10 +97,9 @@ namespace MSBuildLockFiles.Tasks
                     return fullPath.Replace(path, name.StartsWith("#") ? string.Empty : $"{{{name}}}").Replace(@"\", "/").Trim('/');
                 }
 
-                if(allowRelative)
+                if (allowRelative)
                 {
-                    // TODO: Make the fullPath relative to path
-
+                    return fullPath.ToRelativePath(path).Replace(@"\", "/").Trim('/');
                 }
             }
 
