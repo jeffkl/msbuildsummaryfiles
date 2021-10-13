@@ -79,6 +79,7 @@ namespace MSBuildLockFiles.Tasks
         private string NormalizePath(ITaskItem taskItem)
         {
             string fullPath = taskItem.GetMetadata("FullPath");
+            string relativePath = string.Empty;
 
             foreach (ITaskItem folderRoot in FolderRoots)
             {
@@ -99,11 +100,11 @@ namespace MSBuildLockFiles.Tasks
 
                 if (allowRelative)
                 {
-                    return fullPath.ToRelativePath(path).Replace(@"\", "/").Trim('/');
+                    relativePath = fullPath.ToRelativePath(path).Replace(@"\", "/").Trim('/');
                 }
             }
 
-            return fullPath;
+            return string.IsNullOrWhiteSpace(relativePath) ? fullPath : relativePath;
         }
     }
 }
