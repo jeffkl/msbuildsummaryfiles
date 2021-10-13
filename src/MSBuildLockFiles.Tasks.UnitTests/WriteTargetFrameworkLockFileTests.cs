@@ -82,5 +82,70 @@ namespace MSBuildLockFiles.Tasks.UnitTests
 ",
                 StringCompareShould.IgnoreLineEndings);
         }
+
+        [Fact]
+        public void AllowRelative()
+        {
+            FileInfo filePath = new FileInfo(GetTempFileName(".yml"));
+
+            BuildEngine buildEngine = BuildEngine.Create();
+
+            WriteTargetFrameworkLockFile task = new WriteTargetFrameworkLockFile
+            {
+                BuildEngine = buildEngine,
+                FilePath = filePath.FullName,
+                DefineConstants = new ITaskItem[]
+                {
+                    new TaskItem("TWO"),
+                    new TaskItem("ONE"),
+                },
+                FileWrites = new ITaskItem[]
+                {
+                    new TaskItem(Path.Combine(ProjectsRoot, "ProjectA", "bin", "Debug", "net472", "ProjectA.dll")),
+                    new TaskItem(Path.Combine(ProjectsRoot, "ProjectA", "bin", "Debug", "net472", "ProjectA.pdb")),
+                },
+                FolderRoots = new ITaskItem[]
+                {
+                    new TaskItem("#OutputPath", new Dictionary<string, string>
+                    {
+                        ["Path"] = Path.Combine(ProjectsRoot, "ProjectA", "bin", "Debug", "net472")
+                    }),
+                    new TaskItem("#MSBuildProjectDirectory", new Dictionary<string, string>
+                    {
+                        ["Path"] = Path.Combine(ProjectsRoot, "ProjectA") + Path.DirectorySeparatorChar,
+                        ["AllowRelative"] = bool.TrueString
+                    }),
+                    new TaskItem("NuGetPackageRoot", new Dictionary<string, string>
+                    {
+                        ["Path"] = PackageRoot
+                    }),
+                },
+                Sources = new ITaskItem[]
+                {
+                    new TaskItem(Path.Combine(ProjectsRoot, "ProjectA", "Class1.cs")),
+                    new TaskItem(Path.GetFullPath(Path.Combine(ProjectsRoot, "ProjectA", "..", "Shared", "SharedClass.cs"))),
+                },
+                TargetFramework = "net472",
+            };
+
+            task.Execute().ShouldBeTrue(buildEngine.GetConsoleLog());
+
+            filePath.Exists.ShouldBeTrue();
+
+            File.ReadAllText(filePath.FullName).ShouldBe(
+@"net472:
+  constants:
+  - ONE
+  - TWO
+  outputs:
+  - ProjectA.dll
+  - ProjectA.pdb
+  references:
+  sources:
+  - ../Shared/SharedClass.cs
+  - Class1.cs
+",
+                StringCompareShould.IgnoreLineEndings);
+        }
     }
 }
