@@ -21,7 +21,7 @@
     <ItemGroup>
       <_FolderRoots Remove="@(_FolderRoots)" />
       <_FolderRoots Include="#OutputPath" Path="$([MSBuild]::NormalizePath($(OutputPath)))" />
-      <_FolderRoots Include="IntermediateOutputPath" Path="$([MSBuild]::NormalizePath($(IntermediateOutputPath)))" />
+      <_FolderRoots Include="!IntermediateOutputPath" Path="$([MSBuild]::NormalizePath($(IntermediateOutputPath)))" />
       <_FolderRoots Include="MSBuildProjectExtensionsPath" Path="$(MSBuildProjectExtensionsPath)" />
       <_FolderRoots Include="NuGetPackageRoot" Path="$(NuGetPackageRoot)" />
       <_FolderRoots Include="#MSBuildProjectDirectory" Path="$(MSBuildProjectDirectory)\" AllowRelative="true" />
