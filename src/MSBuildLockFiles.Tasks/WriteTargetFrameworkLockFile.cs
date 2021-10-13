@@ -1,4 +1,5 @@
 ﻿using Microsoft.Build.Framework;
+using System;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -45,31 +46,43 @@ namespace MSBuildLockFiles.Tasks
             writer.WriteLine(":");
 
             writer.WriteLine("  constants:");
-            foreach (ITaskItem item in DefineConstants.OrderBy(i => i.ItemSpec))
+            if (DefineConstants?.Length> 0)
             {
-                writer.Write("  - ");
-                writer.WriteLine(item.ItemSpec);
+                foreach (ITaskItem item in DefineConstants.OrderBy(i => i.ItemSpec))
+                {
+                    writer.Write("  - ");
+                    writer.WriteLine(item.ItemSpec);
+                } 
             }
 
             writer.WriteLine("  outputs:");
-            foreach (string fullPath in FileWrites.Select(NormalizePath).OrderBy(i => i))
+            if (FileWrites?.Length > 0)
             {
-                writer.Write("  - ");
-                writer.WriteLine(fullPath);
+                foreach (string fullPath in FileWrites.Select(NormalizePath).OrderBy(i => i))
+                {
+                    writer.Write("  - ");
+                    writer.WriteLine(fullPath);
+                }
             }
 
             writer.WriteLine("  references:");
-            foreach (string normalizedPath in References.Select(NormalizePath).OrderBy(i => i))
+            if (References?.Length > 0)
             {
-                writer.Write("  - ");
-                writer.WriteLine(normalizedPath);
+                foreach (string normalizedPath in References.Select(NormalizePath).OrderBy(i => i))
+                {
+                    writer.Write("  - ");
+                    writer.WriteLine(normalizedPath);
+                }
             }
 
             writer.WriteLine("  sources:");
-            foreach (string fullPath in Sources.Select(NormalizePath).OrderBy(i => i))
+            if (Sources?.Length > 0)
             {
-                writer.Write("  - ");
-                writer.WriteLine(fullPath);
+                foreach (string fullPath in Sources.Select(NormalizePath).OrderBy(i => i))
+                {
+                    writer.Write("  - ");
+                    writer.WriteLine(fullPath);
+                } 
             }
 
             return base.Execute();
@@ -78,11 +91,15 @@ namespace MSBuildLockFiles.Tasks
         private string NormalizePath(ITaskItem taskItem)
         {
             string fullPath = taskItem.GetMetadata("FullPath");
+            string relativePath = string.Empty;
 
             foreach (ITaskItem folderRoot in FolderRoots)
             {
                 string name = folderRoot.ItemSpec;
+                // TODO: EnsureTrailingSlash for ToRelativePath() to work
                 string path = folderRoot.GetMetadata("Path");
+
+                bool allowRelative = string.Equals(bool.TrueString, folderRoot.GetMetadata("AllowRelative"), StringComparison.OrdinalIgnoreCase);
 
                 if (string.IsNullOrWhiteSpace(path))
                 {
@@ -93,9 +110,14 @@ namespace MSBuildLockFiles.Tasks
                 {
                     return fullPath.Replace(path, name.StartsWith("#") ? string.Empty : $"{{{name}}}").Replace(@"\", "/").Trim('/');
                 }
+
+                if (allowRelative)
+                {
+                    relativePath = fullPath.ToRelativePath(path).Replace(@"\", "/").Trim('/');
+                }
             }
 
-            return fullPath;
+            return string.IsNullOrWhiteSpace(relativePath) ? fullPath : relativePath;
         }
     }
 }

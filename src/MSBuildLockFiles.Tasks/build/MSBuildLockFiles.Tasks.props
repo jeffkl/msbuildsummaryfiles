@@ -24,7 +24,7 @@
       <_FolderRoots Include="IntermediateOutputPath" Path="$([MSBuild]::NormalizePath($(IntermediateOutputPath)))" />
       <_FolderRoots Include="MSBuildProjectExtensionsPath" Path="$(MSBuildProjectExtensionsPath)" />
       <_FolderRoots Include="NuGetPackageRoot" Path="$(NuGetPackageRoot)" />
-      <_FolderRoots Include="#MSBuildProjectDirectory" Path="$(MSBuildProjectDirectory)\" />
+      <_FolderRoots Include="#MSBuildProjectDirectory" Path="$(MSBuildProjectDirectory)\" AllowRelative="true" />
       <_FolderRoots Include="FrameworkAssemblies" Path="$(FrameworkPathOverride)" />
       <_FolderRoots Include="MicrosoftNETBuildExtensions" Path="$([System.IO.Path]::GetDirectoryName($(MicrosoftNETBuildExtensionsTargets)))" />
       <_FolderRoots Include="NetCoreTargetingPackRoot" Path="$(NetCoreTargetingPackRoot)" />
