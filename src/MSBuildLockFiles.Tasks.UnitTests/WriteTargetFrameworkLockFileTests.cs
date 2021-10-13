@@ -1,7 +1,5 @@
-using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Runtime.InteropServices;
 using Microsoft.Build.Framework;
 using Microsoft.Build.Utilities;
 using Microsoft.Build.Utilities.ProjectCreation;
@@ -82,15 +80,17 @@ namespace MSBuildLockFiles.Tasks.UnitTests
   - ProjectA.dll
   - ProjectA.pdb
   references:
-  - {NuGetPackageRoot}/package.a/1.0.0/lib/net472/package.a.dll
+  - {NuGetPackageRoot}package.a/1.0.0/lib/net472/package.a.dll
   sources:
   - Class1.cs
 ",
                 StringCompareShould.IgnoreLineEndings);
         }
 
-        [Fact]
-        public void AllowRelative()
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public void AllowRelative(bool withDirectorySeparatorChar)
         {
             FileInfo filePath = new FileInfo(GetTempFileName(".yml"));
 
@@ -118,7 +118,7 @@ namespace MSBuildLockFiles.Tasks.UnitTests
                     }),
                     new TaskItem("#MSBuildProjectDirectory", new Dictionary<string, string>
                     {
-                        ["Path"] = Path.Combine(ProjectsRoot, "ProjectA") + Path.DirectorySeparatorChar,
+                        ["Path"] = Path.Combine(ProjectsRoot, "ProjectA") + (withDirectorySeparatorChar ? Path.DirectorySeparatorChar : string.Empty),
                         ["AllowRelative"] = bool.TrueString
                     }),
                     new TaskItem("NuGetPackageRoot", new Dictionary<string, string>
