@@ -1,6 +1,5 @@
 ﻿using Microsoft.Build.Framework;
 using System;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 
@@ -16,11 +15,6 @@ namespace MSBuildLockFiles.Tasks
 
         public override bool Execute()
         {
-            if (Debug)
-            {
-                Debugger.Launch();
-            }
-
             using StreamWriter writer = new StreamWriter(FilePath);
 
             foreach (string fullPath in LockFiles.Select(i => i.GetMetadata("FullPath")).OrderBy(i => i, StringComparer.OrdinalIgnoreCase))

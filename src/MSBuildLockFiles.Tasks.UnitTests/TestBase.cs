@@ -9,6 +9,8 @@ namespace MSBuildLockFiles.Tasks.UnitTests
     {
         private readonly string _testRootPath = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
 
+        private static readonly Lazy<string> TaskAssemblyFullPathLazy = new Lazy<string>(() => typeof(WriteBuildLockFile).Assembly.Location);
+
         public string TestRootPath
         {
             get
@@ -17,6 +19,8 @@ namespace MSBuildLockFiles.Tasks.UnitTests
                 return _testRootPath;
             }
         }
+
+        public string TaskAssemblyFullPath => TaskAssemblyFullPathLazy.Value;
 
         public static bool IsWindows { get; } = RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
 
@@ -44,9 +48,14 @@ namespace MSBuildLockFiles.Tasks.UnitTests
             return Path.Combine(TestRootPath, $"{Path.GetRandomFileName()}{extension ?? string.Empty}");
         }
 
-        protected string GetTempProjectFile(string name)
+        protected string GetTempProjectFile(string name, params string[] files)
         {
             DirectoryInfo projectDirectory = Directory.CreateDirectory(Path.Combine(TestRootPath, name));
+
+            foreach (string file in files)
+            {
+                File.WriteAllText(Path.Combine(projectDirectory.FullName, file), string.Empty);
+            }
 
             return Path.Combine(projectDirectory.FullName, $"{name}.csproj");
         }
