@@ -1,19 +1,23 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
+using System.Runtime.InteropServices;
 using Microsoft.Build.Framework;
 
 namespace MSBuildLockFiles.Tasks
 {
     internal static class ExtensionMethods
     {
+        private static Lazy<bool> _isWindows = new Lazy<bool>(() => RuntimeInformation.IsOSPlatform(OSPlatform.Windows));
+
         public static IEnumerable<string> GetNormalizedPaths(this IEnumerable<ITaskItem> items, ITaskItem[] folderRoots)
         {
             foreach (ITaskItem item in items)
             {
                 string normalizedPath = item.NormalizePath(folderRoots);
 
-                if(normalizedPath != null)
+                if (normalizedPath != null)
                 {
                     yield return normalizedPath;
                 }
@@ -39,15 +43,12 @@ namespace MSBuildLockFiles.Tasks
         public static string NormalizePath(this ITaskItem taskItem, ITaskItem[] folderRoots)
         {
             string fullPath = taskItem.GetMetadata("FullPath");
-            string relativePath = string.Empty;
 
-            foreach (ITaskItem folderRoot in folderRoots)
+            // Need to exhaust absolute path options before try relative path.
+            foreach (ITaskItem folderRoot in folderRoots.AbsolutePathRoots())
             {
                 string name = folderRoot.ItemSpec;
-                // TODO: EnsureTrailingSlash for ToRelativePath() to work
                 string path = folderRoot.GetMetadata("Path");
-
-                bool allowRelative = string.Equals(bool.TrueString, folderRoot.GetMetadata("AllowRelative"), StringComparison.OrdinalIgnoreCase);
 
                 if (string.IsNullOrWhiteSpace(path))
                 {
@@ -61,16 +62,104 @@ namespace MSBuildLockFiles.Tasks
                         return null;
                     }
 
-                    return fullPath.Replace(path, name.StartsWith("#") ? string.Empty : $"{{{name}}}").Replace(@"\", "/").Trim('/');
-                }
+                    string placeHolder = path.HasTrailingDirectorySeparator() ? $"{{{name}}}{Path.DirectorySeparatorChar}" : $"{{{name}}}";
 
-                if (allowRelative)
-                {
-                    relativePath = fullPath.ToRelativePath(path).Replace(@"\", "/").Trim('/');
+                    return fullPath.Replace(path, name.StartsWith("#") ? string.Empty : placeHolder).Replace(@"\", "/").Trim('/');
                 }
             }
 
-            return string.IsNullOrWhiteSpace(relativePath) ? fullPath : relativePath;
+            List<ITaskItem> relativePathRoots = folderRoots.RelativePathRoots().ToList();
+
+            if (relativePathRoots.Count > 1)
+            {
+                throw new InvalidOperationException("No more than 1 AllowRelative tag is permitted for roots.");
+            }
+
+            // Only one AllowRelative tag is considered.
+            foreach (ITaskItem folderRoot in relativePathRoots)
+            {
+                string path = folderRoot.GetMetadata("Path").EnsureTrailingSlash();
+                string relativePath = fullPath.ToRelativePath(path).Replace(@"\", "/").Trim('/');
+                return relativePath;
+            }
+
+            return fullPath;
+        }
+
+        public static IEnumerable<ITaskItem> AbsolutePathRoots(this ITaskItem[] folderRoots)
+        {
+            foreach (ITaskItem folderRoot in folderRoots)
+            {
+                if (!string.Equals(bool.TrueString, folderRoot.GetMetadata("AllowRelative"), StringComparison.OrdinalIgnoreCase))
+                {
+                    yield return folderRoot;
+                }
+            }
+        }
+
+        public static IEnumerable<ITaskItem> RelativePathRoots(this ITaskItem[] folderRoots)
+        {
+            foreach (ITaskItem folderRoot in folderRoots)
+            {
+                if (string.Equals(bool.TrueString, folderRoot.GetMetadata("AllowRelative"), StringComparison.OrdinalIgnoreCase))
+                {
+                    yield return folderRoot;
+                }
+            }
+        }
+
+        public static string EnsureTrailingSlash(this string path)
+        {
+            return EnsureTrailingCharacter(path, Path.DirectorySeparatorChar);
+        }
+
+        private static string EnsureTrailingCharacter(string path, char trailingCharacter)
+        {
+            if (path == null)
+            {
+                throw new ArgumentNullException("path");
+            }
+
+            // if the path is empty, we want to return the original string instead of a single trailing character.
+            if (path.Length == 0
+                || path[path.Length - 1] == trailingCharacter)
+            {
+                return path;
+            }
+            // This condition checks if there is a different valid path separator than the one requested for.
+            // In that case we replace this path separator.
+            else if (path.HasTrailingDirectorySeparator())
+            {
+                return path.Substring(0, path.Length - 1) + trailingCharacter;
+            }
+
+            return path + trailingCharacter;
+        }
+
+        private static bool HasTrailingDirectorySeparator(this string path)
+        {
+            if (string.IsNullOrEmpty(path))
+            {
+                return false;
+            }
+            else
+            {
+                return IsDirectorySeparatorChar(path[path.Length - 1]);
+            }
+        }
+
+        private static bool IsDirectorySeparatorChar(char ch)
+        {
+            if (_isWindows.Value)
+            {
+                // Windows has both '/' and '\' as valid directory separators.
+                return (ch == Path.DirectorySeparatorChar ||
+                        ch == Path.AltDirectorySeparatorChar);
+            }
+            else
+            {
+                return ch == Path.DirectorySeparatorChar;
+            }
         }
     }
 }

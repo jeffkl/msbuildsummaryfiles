@@ -1,5 +1,4 @@
 ﻿using Microsoft.Build.Framework;
-using System;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -46,13 +45,13 @@ namespace MSBuildLockFiles.Tasks
             writer.WriteLine(":");
 
             writer.WriteLine("  constants:");
-            if (DefineConstants?.Length> 0)
+            if (DefineConstants?.Length > 0)
             {
                 foreach (ITaskItem item in DefineConstants.OrderBy(i => i.ItemSpec))
                 {
                     writer.Write("  - ");
                     writer.WriteLine(item.ItemSpec);
-                } 
+                }
             }
 
             writer.WriteLine("  outputs:");
@@ -82,12 +81,12 @@ namespace MSBuildLockFiles.Tasks
                 {
                     writer.Write("  - ");
                     writer.WriteLine(normalizedPath);
-                } 
+                }
             }
 
             return base.Execute();
         }
 
-        
+
     }
 }

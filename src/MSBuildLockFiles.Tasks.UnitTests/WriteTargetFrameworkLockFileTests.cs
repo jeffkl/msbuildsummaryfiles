@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Runtime.InteropServices;
 using Microsoft.Build.Framework;
 using Microsoft.Build.Utilities;
 using Microsoft.Build.Utilities.ProjectCreation;
@@ -16,12 +15,18 @@ namespace MSBuildLockFiles.Tasks.UnitTests
 
         public string PackageRoot { get; } = IsWindows ? @"C:\packages" : @"/home/packages";
 
+        public string FrameworkAssembliesRoot { get; } = IsWindows ? @"C:\programfiles\frameworkAssembliesRoot\" : @"/home/programfiles/frameworkAssembliesRoot/";
+
+        public string NetCoreTargetingPackRoot { get; } = IsWindows ? @"C:\dotnet\packs\" : @"/home/dotnet/packs/";
+
         [Fact]
         public void SampleUnitTest()
         {
             FileInfo filePath = new FileInfo(GetTempFileName(".yml"));
 
             BuildEngine buildEngine = BuildEngine.Create();
+
+            var IntermediateOutputPath = Path.Combine(ProjectsRoot, "ProjectA", "obj", "Debug", "net472");
 
             WriteTargetFrameworkLockFile task = new WriteTargetFrameworkLockFile
             {
@@ -47,7 +52,7 @@ namespace MSBuildLockFiles.Tasks.UnitTests
                     }),
                     new TaskItem("!IntermediateOutputPath", new Dictionary<string, string>
                     {
-                        ["Path"] = Path.Combine(ProjectsRoot, "ProjectA", "obj", "Debug", "net472")
+                        ["Path"] = IntermediateOutputPath
                     }),
                     new TaskItem("#MSBuildProjectDirectory", new Dictionary<string, string>
                     {
@@ -65,6 +70,7 @@ namespace MSBuildLockFiles.Tasks.UnitTests
                 Sources = new ITaskItem[]
                 {
                     new TaskItem(Path.Combine(ProjectsRoot, "ProjectA", "Class1.cs")),
+                    new TaskItem(Path.Combine(IntermediateOutputPath, "ProjectA.Version.cs")),
                 },
                 TargetFramework = "net472",
             };
@@ -89,8 +95,10 @@ namespace MSBuildLockFiles.Tasks.UnitTests
                 StringCompareShould.IgnoreLineEndings);
         }
 
-        [Fact]
-        public void AllowRelative()
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public void AllowRelative(bool withDirectorySeparatorChar)
         {
             FileInfo filePath = new FileInfo(GetTempFileName(".yml"));
 
@@ -118,13 +126,26 @@ namespace MSBuildLockFiles.Tasks.UnitTests
                     }),
                     new TaskItem("#MSBuildProjectDirectory", new Dictionary<string, string>
                     {
-                        ["Path"] = Path.Combine(ProjectsRoot, "ProjectA") + Path.DirectorySeparatorChar,
+                        ["Path"] = Path.Combine(ProjectsRoot, "ProjectA") + (withDirectorySeparatorChar ? Path.DirectorySeparatorChar : string.Empty),
                         ["AllowRelative"] = bool.TrueString
                     }),
                     new TaskItem("NuGetPackageRoot", new Dictionary<string, string>
                     {
-                        ["Path"] = PackageRoot
+                        ["Path"] = PackageRoot + (withDirectorySeparatorChar ? Path.DirectorySeparatorChar : string.Empty),
                     }),
+                    new TaskItem("FrameworkAssembliesRoot", new Dictionary<string, string>
+                    {
+                        ["Path"] = FrameworkAssembliesRoot,
+                    }),
+                    new TaskItem("NetCoreTargetingPackRoot", new Dictionary<string, string>
+                    {
+                        ["Path"] = NetCoreTargetingPackRoot
+                    }),
+                },
+                References = new ITaskItem[]
+                {
+                    new TaskItem(Path.Combine(FrameworkAssembliesRoot, "Microsoft.CSharp.dll")),
+                    new TaskItem(Path.Combine(NetCoreTargetingPackRoot, "Microsoft.NETCore.App.Ref", "net472", "Microsoft.CSharp.dll")),
                 },
                 Sources = new ITaskItem[]
                 {
@@ -147,11 +168,51 @@ namespace MSBuildLockFiles.Tasks.UnitTests
   - ProjectA.dll
   - ProjectA.pdb
   references:
+  - {FrameworkAssembliesRoot}/Microsoft.CSharp.dll
+  - {NetCoreTargetingPackRoot}/Microsoft.NETCore.App.Ref/net472/Microsoft.CSharp.dll
   sources:
   - ../Shared/SharedClass.cs
   - Class1.cs
 ",
                 StringCompareShould.IgnoreLineEndings);
+        }
+
+        [Fact]
+        public void MoreThanOneAllowRelativeTag_Throws()
+        {
+            FileInfo filePath = new FileInfo(GetTempFileName(".yml"));
+
+            BuildEngine buildEngine = BuildEngine.Create();
+
+            WriteTargetFrameworkLockFile task = new WriteTargetFrameworkLockFile
+            {
+                BuildEngine = buildEngine,
+                FilePath = filePath.FullName,
+
+                FolderRoots = new ITaskItem[]
+                {
+
+                    new TaskItem("#MSBuildProjectDirectory", new Dictionary<string, string>
+                    {
+                        ["Path"] = Path.Combine(ProjectsRoot, "ProjectA"),
+                        ["AllowRelative"] = bool.TrueString
+                    }),
+                    new TaskItem("NuGetPackageRoot", new Dictionary<string, string>
+                    {
+                        ["Path"] = PackageRoot,
+                        ["AllowRelative"] = bool.TrueString
+                    })
+                },
+                Sources = new ITaskItem[]
+                {
+                    new TaskItem(Path.Combine(ProjectsRoot, "ProjectA", "Class1.cs")),
+                    new TaskItem(Path.GetFullPath(Path.Combine(ProjectsRoot, "ProjectA", "..", "Shared", "SharedClass.cs"))),
+                },
+                TargetFramework = "net472",
+            };
+
+            var exception = Assert.Throws<InvalidOperationException>(() => task.Execute().ShouldBeTrue(buildEngine.GetConsoleLog()));
+            Assert.Equal("No more than 1 AllowRelative tag is permitted for roots.", exception.Message);
         }
     }
 }
