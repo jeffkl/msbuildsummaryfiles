@@ -1212,7 +1212,62 @@ netstandard2.1:
                 StringCompareShould.IgnoreLineEndings);
         }
 
+#if NETFRAMEWORK
+        [Fact]
+        public void LegacyProject()
+        {
+            CreateLegacyProject("net472", "v4.7.2")
+                .ItemCompile("Class1.cs")
+                .Save(GetTempProjectFile("ProjectA", "Class1.cs"))
+                .TryBuild(restore: true, out bool result, out BuildOutput buildOutput)
+                .TryGetPropertyValue("BuildLockFilePath", out string buildLockFilePath);
+
+            result.ShouldBeTrue(buildOutput.GetConsoleLog());
+
+            buildLockFilePath.ShouldNotBeNullOrEmpty();
+
+            File.ReadAllText(buildLockFilePath).ShouldBe(
+                @"net472:
+  constants:
+  - DEBUG
+  - TRACE
+  outputs:
+  - ClassLibrary.dll
+  - ClassLibrary.pdb
+  references:
+  - {FrameworkAssemblies}/Microsoft.CSharp.dll
+  - {FrameworkAssemblies}/mscorlib.dll
+  - {FrameworkAssemblies}/System.Core.dll
+  - {FrameworkAssemblies}/System.Data.DataSetExtensions.dll
+  - {FrameworkAssemblies}/System.Data.dll
+  - {FrameworkAssemblies}/System.dll
+  - {FrameworkAssemblies}/System.Net.Http.dll
+  - {FrameworkAssemblies}/System.Xml.dll
+  - {FrameworkAssemblies}/System.Xml.Linq.dll
+  sources:
+  - Class1.cs
+",
+                StringCompareShould.IgnoreLineEndings);
+        }
+#endif
+
         private ProjectCreator CreateSdkStyleProject(params string[] targetFrameworks)
+        {
+            CreateDirectoryBuildPropsAndTargets(targetFrameworks);
+
+            return ProjectCreator.Templates.SdkCsproj(
+                targetFrameworks: targetFrameworks);
+        }
+
+        private ProjectCreator CreateLegacyProject(string targetFramework, string targetFrameworkVersion)
+        {
+            CreateDirectoryBuildPropsAndTargets(targetFramework);
+
+            return ProjectCreator.Templates.LegacyCsproj(
+                targetFrameworkVersion: targetFrameworkVersion);
+        }
+
+        private void CreateDirectoryBuildPropsAndTargets(params string[] targetFrameworks)
         {
             ProjectCreator
                 .Create(Path.Combine(TestRootPath, "Directory.Build.props"))
@@ -1226,9 +1281,6 @@ netstandard2.1:
                 .Import(Path.Combine(Environment.CurrentDirectory, "build", "MSBuildLockFiles.Tasks.targets"), condition: targetFrameworks.Length > 1 ? "'$(TargetFramework)' != ''" : null)
                 .Import(Path.Combine(Environment.CurrentDirectory, "buildMultiTargeting", "MSBuildLockFiles.Tasks.targets"), condition: targetFrameworks.Length > 1 ? "'$(TargetFramework)' == ''" : bool.FalseString)
                 .Save();
-
-            return ProjectCreator.Templates.SdkCsproj(
-                targetFrameworks: targetFrameworks);
         }
     }
 }
