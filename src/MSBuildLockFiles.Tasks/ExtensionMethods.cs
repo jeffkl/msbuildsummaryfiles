@@ -9,7 +9,7 @@ namespace MSBuildLockFiles.Tasks
 {
     internal static class ExtensionMethods
     {
-        private static Lazy<bool> _isWindows = new Lazy<bool>(() => RuntimeInformation.IsOSPlatform(OSPlatform.Windows));
+        private static readonly bool IsWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
 
         public static IEnumerable<string> GetNormalizedPaths(this IEnumerable<ITaskItem> items, ITaskItem[] folderRoots)
         {
@@ -42,13 +42,13 @@ namespace MSBuildLockFiles.Tasks
 
         public static string NormalizePath(this ITaskItem taskItem, ITaskItem[] folderRoots)
         {
-            string fullPath = taskItem.GetMetadata("FullPath");
+            string fullPath = taskItem.GetMetadata("FullPath").FixPath();
 
             // Need to exhaust absolute path options before try relative path.
             foreach (ITaskItem folderRoot in folderRoots.AbsolutePathRoots())
             {
                 string name = folderRoot.ItemSpec;
-                string path = folderRoot.GetMetadata("Path");
+                string path = folderRoot.GetMetadata("Path").FixPath();
 
                 if (string.IsNullOrWhiteSpace(path))
                 {
@@ -62,9 +62,11 @@ namespace MSBuildLockFiles.Tasks
                         return null;
                     }
 
-                    string placeHolder = path.HasTrailingDirectorySeparator() ? $"{{{name}}}{Path.DirectorySeparatorChar}" : $"{{{name}}}";
+                    string placeHolder = name.StartsWith("#")
+                        ? string.Empty
+                        : path.HasTrailingDirectorySeparator() ? $"{{{name}}}{Path.DirectorySeparatorChar}" : $"{{{name}}}";
 
-                    return fullPath.Replace(path, name.StartsWith("#") ? string.Empty : placeHolder).Replace(@"\", "/").Trim('/');
+                    return fullPath.Replace(path, placeHolder).Replace(@"\", "/").Trim('/');
                 }
             }
 
@@ -78,12 +80,22 @@ namespace MSBuildLockFiles.Tasks
             // Only one AllowRelative tag is considered.
             foreach (ITaskItem folderRoot in relativePathRoots)
             {
-                string path = folderRoot.GetMetadata("Path").EnsureTrailingSlash();
+                string path = folderRoot.GetMetadata("Path").EnsureTrailingSlash().FixPath();
                 string relativePath = fullPath.ToRelativePath(path).Replace(@"\", "/").Trim('/');
                 return relativePath;
             }
 
             return fullPath;
+        }
+
+        public static string FixPath(this string path)
+        {
+            if (path.StartsWith("/private/var"))
+            {
+                return path.Substring(8);
+            }
+
+            return path;
         }
 
         public static IEnumerable<ITaskItem> AbsolutePathRoots(this ITaskItem[] folderRoots)
@@ -150,7 +162,7 @@ namespace MSBuildLockFiles.Tasks
 
         private static bool IsDirectorySeparatorChar(char ch)
         {
-            if (_isWindows.Value)
+            if (IsWindows)
             {
                 // Windows has both '/' and '\' as valid directory separators.
                 return (ch == Path.DirectorySeparatorChar ||

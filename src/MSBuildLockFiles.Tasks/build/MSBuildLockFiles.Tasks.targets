@@ -1,3 +1,51 @@
 ﻿<Project>
+  <PropertyGroup>
+    <BuildLockFilePath Condition="'$(BuildLockFilePath)' == ''">$([System.IO.Path]::Combine($(MSBuildProjectDirectory), 'build.lock.yml'))</BuildLockFilePath>
+  </PropertyGroup>
 
+  <Target Name="WriteTargetFrameworkLockFile"
+          AfterTargets="Build"
+          Condition="'$(TargetFramework)' != ''"
+          DependsOnTargets="GetTargetFrameworkLockFile">
+    <ItemGroup>
+      <_FolderRoots Remove="@(_FolderRoots)" />
+      <_FolderRoots Include="#OutputPath" Path="$([MSBuild]::NormalizePath($(OutputPath)))" />
+      <_FolderRoots Include="!IntermediateOutputPath" Path="$([MSBuild]::NormalizePath($(IntermediateOutputPath)))" />
+      <_FolderRoots Include="MSBuildProjectExtensionsPath" Path="$(MSBuildProjectExtensionsPath)" />
+      <_FolderRoots Include="NuGetPackageRoot" Path="$(NuGetPackageRoot)" />
+      <_FolderRoots Include="#MSBuildProjectDirectory" Path="$(MSBuildProjectDirectory)\" AllowRelative="true" />
+      <_FolderRoots Include="FrameworkAssemblies" Path="$(FrameworkPathOverride)" />
+      <_FolderRoots Include="MicrosoftNETBuildExtensions" Path="$([System.IO.Path]::GetDirectoryName($(MicrosoftNETBuildExtensionsTargets)))" />
+      <_FolderRoots Include="NetCoreTargetingPackRoot" Path="$(NetCoreTargetingPackRoot)" />
+    </ItemGroup>
+
+    <WriteTargetFrameworkLockFile
+      References="@(ReferencePathWithRefAssemblies)"
+      FolderRoots="@(_FolderRoots)"
+      DefineConstants="$(DefineConstants)"
+      Sources="@(Compile)"
+      TargetFramework="$(TargetFramework)"
+      FileWrites="@(FileWrites)"
+      FilePath="@(TargetFrameworkLockFile)" />
+  </Target>
+
+  <Target Name="GetTargetFrameworkLockFile"
+          Returns="@(TargetFrameworkLockFile)">
+    <ItemGroup>
+      <TargetFrameworkLockFile Include="$([MSBuild]::ValueOrDefault($(TargetFrameworkLockFilePath), '$(IntermediateOutputPath)\build.lock.yml'))" />
+    </ItemGroup>
+  </Target>
+
+  <Target Name="WriteBuildLockFile"
+          AfterTargets="Build"
+          DependsOnTargets="GetTargetFrameworkLockFiles"
+          Condition="'$(IsInnerBuild)' != 'true'">
+    <WriteBuildLockFile LockFiles="@(TargetFrameworkLockFile)"
+                        FilePath="$(BuildLockFilePath)" />
+  </Target>
+
+  <Target Name="GetTargetFrameworkLockFiles"
+          DependsOnTargets="GetTargetFrameworkLockFile"
+          Returns="@(TargetFrameworkLockFile)">
+  </Target>
 </Project>

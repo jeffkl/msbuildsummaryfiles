@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFrameworks>net472;netcoreapp3.1;net5.0;net6.0</TargetFrameworks>
     <IsPackable>false</IsPackable>
@@ -12,5 +12,10 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\MSBuildLockFiles.Tasks\MSBuildLockFiles.Tasks.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="..\MSBuildLockFiles.Tasks\build\**" Link="build\%(RecursiveDir)%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
+    <Content Include="..\MSBuildLockFiles.Tasks\buildMultiTargeting\**" Link="buildMultiTargeting\%(RecursiveDir)%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
+    <Content Include="xunit.runner.json" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 </Project>

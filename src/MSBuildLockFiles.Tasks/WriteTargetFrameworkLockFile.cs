@@ -1,5 +1,4 @@
 ﻿using Microsoft.Build.Framework;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 
@@ -30,11 +29,6 @@ namespace MSBuildLockFiles.Tasks
 
         public override bool Execute()
         {
-            if (Debug)
-            {
-                Debugger.Launch();
-            }
-
             FileInfo fileInfo = new FileInfo(FilePath);
 
             fileInfo.Directory.Create();
