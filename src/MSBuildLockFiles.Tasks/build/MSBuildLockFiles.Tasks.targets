@@ -23,7 +23,7 @@
       References="@(ReferencePathWithRefAssemblies)"
       FolderRoots="@(_FolderRoots)"
       DefineConstants="$(DefineConstants)"
-      Sources="@(Compile)"
+      Sources="@(Compile);@(EmbeddedResource)"
       TargetFramework="$(TargetFramework)"
       FileWrites="@(FileWrites)"
       FilePath="@(TargetFrameworkLockFile)" />

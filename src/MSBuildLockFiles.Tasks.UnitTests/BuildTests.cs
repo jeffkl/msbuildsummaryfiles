@@ -17,7 +17,7 @@ namespace MSBuildLockFiles.Tasks.UnitTests
             string[] targetFrameworks = { "netstandard2.0", "netstandard2.1" };
 #endif
             CreateSdkStyleProject(targetFrameworks)
-                .Save(GetTempProjectFile("ProjectA", "AAA.cs", "BBB.cs"))
+                .Save(GetTempProjectFile("ProjectA", "AAA.cs", "BBB.cs", "strings.resx"))
                 .TryBuild(restore: true, out bool result, out BuildOutput buildOutput)
                 .TryGetPropertyValue("BuildLockFilePath", out string buildLockFilePath);
 
@@ -56,6 +56,7 @@ namespace MSBuildLockFiles.Tasks.UnitTests
   sources:
   - AAA.cs
   - BBB.cs
+  - strings.resx
 net472:
   constants:
   - DEBUG
@@ -92,6 +93,7 @@ net472:
   sources:
   - AAA.cs
   - BBB.cs
+  - strings.resx
 ",
 #elif NET5_0
                 @"netstandard2.0:
@@ -229,6 +231,7 @@ net472:
   sources:
   - AAA.cs
   - BBB.cs
+  - strings.resx
 netstandard2.1:
   constants:
   - DEBUG
@@ -373,6 +376,7 @@ netstandard2.1:
   sources:
   - AAA.cs
   - BBB.cs
+  - strings.resx
 ",
 #elif NET6_0
                 @"netstandard2.0:
@@ -510,6 +514,7 @@ netstandard2.1:
   sources:
   - AAA.cs
   - BBB.cs
+  - strings.resx
 netstandard2.1:
   constants:
   - DEBUG
@@ -654,6 +659,7 @@ netstandard2.1:
   sources:
   - AAA.cs
   - BBB.cs
+  - strings.resx
 ",
 #else
                 @"netstandard2.0:
@@ -783,6 +789,7 @@ netstandard2.1:
   sources:
   - AAA.cs
   - BBB.cs
+  - strings.resx
 netstandard2.1:
   constants:
   - DEBUG
@@ -918,6 +925,7 @@ netstandard2.1:
   sources:
   - AAA.cs
   - BBB.cs
+  - strings.resx
 ",
 #endif
                 StringCompareShould.IgnoreLineEndings);
@@ -927,7 +935,7 @@ netstandard2.1:
         public void SingleTargetingBuild()
         {
             CreateSdkStyleProject("netstandard2.0")
-                .Save(GetTempProjectFile("ProjectA"))
+                .Save(GetTempProjectFile("ProjectA", "Strings.resx"))
                 .TryBuild(restore: true, out bool result, out BuildOutput buildOutput)
                 .TryGetPropertyValue("BuildLockFilePath", out string buildLockFilePath);
 
@@ -1070,6 +1078,7 @@ netstandard2.1:
   - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Xml.XPath.dll
   - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Xml.XPath.XDocument.dll
   sources:
+  - Strings.resx
 ",
 #else
                 @"netstandard2.0:
@@ -1197,6 +1206,7 @@ netstandard2.1:
   - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Xml.XPath.dll
   - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Xml.XPath.XDocument.dll
   sources:
+  - Strings.resx
 ",
 #endif
                 StringCompareShould.IgnoreLineEndings);

@@ -54,10 +54,46 @@ namespace MSBuildLockFiles.Tasks.UnitTests
 
             foreach (string file in files)
             {
-                File.WriteAllText(Path.Combine(projectDirectory.FullName, file), string.Empty);
+                File.WriteAllText(Path.Combine(projectDirectory.FullName, file), GetFileContent(file));
             }
 
             return Path.Combine(projectDirectory.FullName, $"{name}.csproj");
+        }
+
+        private string GetFileContent(string file)
+        {
+            var content = string.Empty;
+
+            if (string.Equals(file, "strings.resx", StringComparison.OrdinalIgnoreCase))
+            {
+                content = GetTestStringResxContent();
+            }
+
+            return content;
+        }
+
+        private string GetTestStringResxContent()
+        {
+            return @"<?xml version=""1.0"" encoding=""utf-8""?>
+<root>
+  <xsd:schema id=""root"" xmlns="""" xmlns:xsd=""http://www.w3.org/2001/XMLSchema"" xmlns:msdata=""urn:schemas-microsoft-com:xml-msdata"">
+    <xsd:import namespace=""http://www.w3.org/XML/1998/namespace"" />
+    <xsd:element name=""root"" msdata:IsDataSet=""true"">
+    </xsd:element>
+  </xsd:schema>
+  <resheader name=""resmimetype"">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name=""version"">
+    <value>2.0</value>
+  </resheader>
+  <resheader name=""reader"">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name=""writer"">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>  
+</root>";
         }
     }
 }
