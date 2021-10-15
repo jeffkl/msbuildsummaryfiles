@@ -1,4 +1,5 @@
 ﻿using Microsoft.Build.Framework;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
@@ -41,7 +42,9 @@ namespace MSBuildLockFiles.Tasks
             writer.WriteLine("  constants:");
             if (DefineConstants?.Length > 0)
             {
-                foreach (ITaskItem item in DefineConstants.OrderBy(i => i.ItemSpec))
+                IEnumerable<ITaskItem> uniqueDefinedConstants = DefineConstants.GroupBy(i => i.ItemSpec)
+                                                                               .Select(g => g.First());
+                foreach (ITaskItem item in uniqueDefinedConstants.OrderBy(i => i.ItemSpec))
                 {
                     writer.Write("  - ");
                     writer.WriteLine(item.ItemSpec);
