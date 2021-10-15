@@ -1,4 +1,5 @@
 ﻿using Microsoft.Build.Framework;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
@@ -41,10 +42,10 @@ namespace MSBuildLockFiles.Tasks
             writer.WriteLine("  constants:");
             if (DefineConstants?.Length > 0)
             {
-                foreach (ITaskItem item in DefineConstants.OrderBy(i => i.ItemSpec))
+                foreach (string itemSpec in DefineConstants.Select(i => i.ItemSpec).Distinct().OrderBy(i => i))
                 {
                     writer.Write("  - ");
-                    writer.WriteLine(item.ItemSpec);
+                    writer.WriteLine(itemSpec);
                 }
             }
 

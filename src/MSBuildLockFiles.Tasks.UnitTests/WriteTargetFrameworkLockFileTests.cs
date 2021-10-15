@@ -214,5 +214,60 @@ namespace MSBuildLockFiles.Tasks.UnitTests
             var exception = Assert.Throws<InvalidOperationException>(() => task.Execute().ShouldBeTrue(buildEngine.GetConsoleLog()));
             Assert.Equal("No more than 1 AllowRelative tag is permitted for roots.", exception.Message);
         }
+
+        [Fact]
+        public void Deduplicate_Compiler_Constants()
+        {
+            FileInfo filePath = new FileInfo(GetTempFileName(".yml"));
+
+            BuildEngine buildEngine = BuildEngine.Create();
+
+            WriteTargetFrameworkLockFile task = new WriteTargetFrameworkLockFile
+            {
+                BuildEngine = buildEngine,
+                FilePath = filePath.FullName,
+                DefineConstants = new ITaskItem[]
+                {
+                    new TaskItem("ONE"),
+                    new TaskItem("ONE"),
+                    new TaskItem("TWO"),
+                },
+                FolderRoots = new ITaskItem[]
+                {
+                    new TaskItem("#MSBuildProjectDirectory", new Dictionary<string, string>
+                    {
+                        ["Path"] = Path.Combine(ProjectsRoot, "ProjectA"),
+                        ["AllowRelative"] = bool.TrueString
+                    }),
+                    new TaskItem("NuGetPackageRoot", new Dictionary<string, string>
+                    {
+                        ["Path"] = PackageRoot,
+                    })
+                },
+                Sources = new ITaskItem[]
+                {
+                    new TaskItem(Path.Combine(ProjectsRoot, "ProjectA", "Class1.cs")),
+                    new TaskItem(Path.GetFullPath(Path.Combine(ProjectsRoot, "ProjectA", "..", "Shared", "SharedClass.cs"))),
+                },
+                TargetFramework = "net472",
+            };
+
+            task.Execute().ShouldBeTrue(buildEngine.GetConsoleLog());
+
+            filePath.Exists.ShouldBeTrue();
+
+            File.ReadAllText(filePath.FullName).ShouldBe(
+@"net472:
+  constants:
+  - ONE
+  - TWO
+  outputs:
+  references:
+  sources:
+  - ../Shared/SharedClass.cs
+  - Class1.cs
+",
+                StringCompareShould.IgnoreLineEndings);
+        }
     }
 }
