@@ -42,12 +42,10 @@ namespace MSBuildLockFiles.Tasks
             writer.WriteLine("  constants:");
             if (DefineConstants?.Length > 0)
             {
-                IEnumerable<ITaskItem> uniqueDefinedConstants = DefineConstants.GroupBy(i => i.ItemSpec)
-                                                                               .Select(g => g.First());
-                foreach (ITaskItem item in uniqueDefinedConstants.OrderBy(i => i.ItemSpec))
+                foreach (string itemSpec in DefineConstants.Select(i => i.ItemSpec).Distinct().OrderBy(i => i))
                 {
                     writer.Write("  - ");
-                    writer.WriteLine(item.ItemSpec);
+                    writer.WriteLine(itemSpec);
                 }
             }
 
