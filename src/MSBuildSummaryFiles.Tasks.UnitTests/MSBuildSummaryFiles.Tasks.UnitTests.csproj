@@ -11,11 +11,11 @@
     <PackageReference Include="xunit.runner.visualstudio" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\MSBuildLockFiles.Tasks\MSBuildLockFiles.Tasks.csproj" />
+    <ProjectReference Include="..\MSBuildSummaryFiles.Tasks\MSBuildSummaryFiles.Tasks.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="..\MSBuildLockFiles.Tasks\build\**" Link="build\%(RecursiveDir)%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
-    <Content Include="..\MSBuildLockFiles.Tasks\buildMultiTargeting\**" Link="buildMultiTargeting\%(RecursiveDir)%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
+    <Content Include="..\MSBuildSummaryFiles.Tasks\build\**" Link="build\%(RecursiveDir)%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
+    <Content Include="..\MSBuildSummaryFiles.Tasks\buildMultiTargeting\**" Link="buildMultiTargeting\%(RecursiveDir)%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
     <Content Include="xunit.runner.json" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 </Project>

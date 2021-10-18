@@ -7,9 +7,9 @@ using Microsoft.Build.Utilities.ProjectCreation;
 using Shouldly;
 using Xunit;
 
-namespace MSBuildLockFiles.Tasks.UnitTests
+namespace MSBuildSummaryFiles.Tasks.UnitTests
 {
-    public class WriteTargetFrameworkLockFileTests : TestBase
+    public class WriteTargetFrameworkSummaryFileTests : TestBase
     {
         public string ProjectsRoot { get; } = IsWindows ? @"C:\projects" : @"/home/projects";
 
@@ -28,7 +28,7 @@ namespace MSBuildLockFiles.Tasks.UnitTests
 
             var IntermediateOutputPath = Path.Combine(ProjectsRoot, "ProjectA", "obj", "Debug", "net472");
 
-            WriteTargetFrameworkLockFile task = new WriteTargetFrameworkLockFile
+            WriteTargetFrameworkSummaryFile task = new WriteTargetFrameworkSummaryFile
             {
                 BuildEngine = buildEngine,
                 FilePath = filePath.FullName,
@@ -104,7 +104,7 @@ namespace MSBuildLockFiles.Tasks.UnitTests
 
             BuildEngine buildEngine = BuildEngine.Create();
 
-            WriteTargetFrameworkLockFile task = new WriteTargetFrameworkLockFile
+            WriteTargetFrameworkSummaryFile task = new WriteTargetFrameworkSummaryFile
             {
                 BuildEngine = buildEngine,
                 FilePath = filePath.FullName,
@@ -184,7 +184,7 @@ namespace MSBuildLockFiles.Tasks.UnitTests
 
             BuildEngine buildEngine = BuildEngine.Create();
 
-            WriteTargetFrameworkLockFile task = new WriteTargetFrameworkLockFile
+            WriteTargetFrameworkSummaryFile task = new WriteTargetFrameworkSummaryFile
             {
                 BuildEngine = buildEngine,
                 FilePath = filePath.FullName,
@@ -222,7 +222,7 @@ namespace MSBuildLockFiles.Tasks.UnitTests
 
             BuildEngine buildEngine = BuildEngine.Create();
 
-            WriteTargetFrameworkLockFile task = new WriteTargetFrameworkLockFile
+            WriteTargetFrameworkSummaryFile task = new WriteTargetFrameworkSummaryFile
             {
                 BuildEngine = buildEngine,
                 FilePath = filePath.FullName,

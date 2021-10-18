@@ -4,7 +4,7 @@ using Microsoft.Build.Utilities.ProjectCreation;
 using Shouldly;
 using Xunit;
 
-namespace MSBuildLockFiles.Tasks.UnitTests
+namespace MSBuildSummaryFiles.Tasks.UnitTests
 {
     public class BuildTests : TestBase
     {
@@ -19,11 +19,11 @@ namespace MSBuildLockFiles.Tasks.UnitTests
             CreateSdkStyleProject(targetFrameworks)
                 .Save(GetTempProjectFile("ProjectA", "AAA.cs", "BBB.cs", "strings.resx"))
                 .TryBuild(restore: true, out bool result, out BuildOutput buildOutput)
-                .TryGetPropertyValue("BuildLockFilePath", out string buildLockFilePath);
+                .TryGetPropertyValue("BuildSummaryFilePath", out string buildSummaryFilePath);
 
             result.ShouldBeTrue(buildOutput.GetConsoleLog());
 
-            File.ReadAllText(buildLockFilePath).ShouldBe(
+            File.ReadAllText(buildSummaryFilePath).ShouldBe(
 #if NETFRAMEWORK
                 @"net46:
   constants:
@@ -937,13 +937,13 @@ netstandard2.1:
             CreateSdkStyleProject("netstandard2.0")
                 .Save(GetTempProjectFile("ProjectA", "Strings.resx"))
                 .TryBuild(restore: true, out bool result, out BuildOutput buildOutput)
-                .TryGetPropertyValue("BuildLockFilePath", out string buildLockFilePath);
+                .TryGetPropertyValue("BuildSummaryFilePath", out string buildSummaryFilePath);
 
             result.ShouldBeTrue(buildOutput.GetConsoleLog());
 
-            buildLockFilePath.ShouldNotBeNullOrEmpty();
+            buildSummaryFilePath.ShouldNotBeNullOrEmpty();
 
-            File.ReadAllText(buildLockFilePath).ShouldBe(
+            File.ReadAllText(buildSummaryFilePath).ShouldBe(
 #if NETFRAMEWORK || NET5_0_OR_GREATER
                 @"netstandard2.0:
   constants:
@@ -1220,13 +1220,13 @@ netstandard2.1:
                 .Property("GeneratePackageOnBuild", bool.TrueString)
                 .Save(GetTempProjectFile("ProjectA"))
                 .TryBuild(restore: true, out bool result, out BuildOutput buildOutput)
-                .TryGetPropertyValue("BuildLockFilePath", out string buildLockFilePath);
+                .TryGetPropertyValue("BuildSummaryFilePath", out string buildSummaryFilePath);
 
             result.ShouldBeTrue(buildOutput.GetConsoleLog());
 
-            buildLockFilePath.ShouldNotBeNullOrEmpty();
+            buildSummaryFilePath.ShouldNotBeNullOrEmpty();
 
-            File.ReadAllText(buildLockFilePath).ShouldBe(
+            File.ReadAllText(buildSummaryFilePath).ShouldBe(
 #if NETCOREAPP3_1
                 @"all:
   outputs:
@@ -1318,13 +1318,13 @@ netstandard1.0:
                 .ItemCompile("Class1.cs")
                 .Save(GetTempProjectFile("ProjectA", "Class1.cs"))
                 .TryBuild(restore: true, out bool result, out BuildOutput buildOutput)
-                .TryGetPropertyValue("BuildLockFilePath", out string buildLockFilePath);
+                .TryGetPropertyValue("BuildSummaryFilePath", out string buildSummaryFilePath);
 
             result.ShouldBeTrue(buildOutput.GetConsoleLog());
 
-            buildLockFilePath.ShouldNotBeNullOrEmpty();
+            buildSummaryFilePath.ShouldNotBeNullOrEmpty();
 
-            File.ReadAllText(buildLockFilePath).ShouldBe(
+            File.ReadAllText(buildSummaryFilePath).ShouldBe(
                 @"net472:
   constants:
   - DEBUG
@@ -1369,15 +1369,15 @@ netstandard1.0:
         {
             ProjectCreator
                 .Create(Path.Combine(TestRootPath, "Directory.Build.props"))
-                .Property("MSBuildLockFilesTaskAssembly", TaskAssemblyFullPath)
-                .Import(Path.Combine(Environment.CurrentDirectory, "build", "MSBuildLockFiles.Tasks.props"), condition: targetFrameworks.Length > 1 ? "'$(TargetFramework)' != ''" : null)
-                .Import(Path.Combine(Environment.CurrentDirectory, "buildMultiTargeting", "MSBuildLockFiles.Tasks.props"), condition: targetFrameworks.Length > 1 ? "'$(TargetFramework)' == ''" : bool.FalseString)
+                .Property("MSBuildSummaryFilesTaskAssembly", TaskAssemblyFullPath)
+                .Import(Path.Combine(Environment.CurrentDirectory, "build", "MSBuildSummaryFiles.Tasks.props"), condition: targetFrameworks.Length > 1 ? "'$(TargetFramework)' != ''" : null)
+                .Import(Path.Combine(Environment.CurrentDirectory, "buildMultiTargeting", "MSBuildSummaryFiles.Tasks.props"), condition: targetFrameworks.Length > 1 ? "'$(TargetFramework)' == ''" : bool.FalseString)
                 .Save();
 
             ProjectCreator
                 .Create(Path.Combine(TestRootPath, "Directory.Build.targets"))
-                .Import(Path.Combine(Environment.CurrentDirectory, "build", "MSBuildLockFiles.Tasks.targets"), condition: targetFrameworks.Length > 1 ? "'$(TargetFramework)' != ''" : null)
-                .Import(Path.Combine(Environment.CurrentDirectory, "buildMultiTargeting", "MSBuildLockFiles.Tasks.targets"), condition: targetFrameworks.Length > 1 ? "'$(TargetFramework)' == ''" : bool.FalseString)
+                .Import(Path.Combine(Environment.CurrentDirectory, "build", "MSBuildSummaryFiles.Tasks.targets"), condition: targetFrameworks.Length > 1 ? "'$(TargetFramework)' != ''" : null)
+                .Import(Path.Combine(Environment.CurrentDirectory, "buildMultiTargeting", "MSBuildSummaryFiles.Tasks.targets"), condition: targetFrameworks.Length > 1 ? "'$(TargetFramework)' == ''" : bool.FalseString)
                 .Save();
         }
     }

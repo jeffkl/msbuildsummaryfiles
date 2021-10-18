@@ -5,7 +5,7 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using Microsoft.Build.Framework;
 
-namespace MSBuildLockFiles.Tasks
+namespace MSBuildSummaryFiles.Tasks
 {
     internal static class ExtensionMethods
     {

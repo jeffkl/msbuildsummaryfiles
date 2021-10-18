@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.31808.319
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MSBuildLockFiles.Tasks", "src\MSBuildLockFiles.Tasks\MSBuildLockFiles.Tasks.csproj", "{75A007E6-71D3-458A-9AA9-83D2569B3170}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MSBuildSummaryFiles.Tasks", "src\MSBuildSummaryFiles.Tasks\MSBuildSummaryFiles.Tasks.csproj", "{75A007E6-71D3-458A-9AA9-83D2569B3170}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{7A57CD32-E62B-4DE3-B74A-EF5E2D8BD486}"
 	ProjectSection(SolutionItems) = preProject
@@ -19,7 +19,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		version.json = version.json
 	EndProjectSection
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MSBuildLockFiles.Tasks.UnitTests", "src\MSBuildLockFiles.Tasks.UnitTests\MSBuildLockFiles.Tasks.UnitTests.csproj", "{7FB90808-0F81-41E2-8C6D-8475CE5D6C7B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MSBuildSummaryFiles.Tasks.UnitTests", "src\MSBuildSummaryFiles.Tasks.UnitTests\MSBuildSummaryFiles.Tasks.UnitTests.csproj", "{7FB90808-0F81-41E2-8C6D-8475CE5D6C7B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

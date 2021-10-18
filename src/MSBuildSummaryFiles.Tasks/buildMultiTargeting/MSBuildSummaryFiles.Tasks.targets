@@ -1,14 +1,14 @@
 ﻿<Project>
   <Import Project="..\build\$(MSBuildThisFile)"/>
 
-  <Target Name="GetTargetFrameworkLockFiles"
+  <Target Name="GetTargetFrameworkSummaryFiles"
           DependsOnTargets="_ComputeTargetFrameworkItems"
-          Returns="@(TargetFrameworkLockFile)">
+          Returns="@(TargetFrameworkSummaryFile)">
     <MSBuild Projects="@(_InnerBuildProjects)"
              Condition="'@(_InnerBuildProjects)' != ''"
-             Targets="GetTargetFrameworkLockFile"
+             Targets="GetTargetFrameworkSummaryFile"
              BuildInParallel="$(BuildInParallel)">
-      <Output TaskParameter="TargetOutputs" ItemName="TargetFrameworkLockFile" />
+      <Output TaskParameter="TargetOutputs" ItemName="TargetFrameworkSummaryFile" />
     </MSBuild>
   </Target>
 </Project>
