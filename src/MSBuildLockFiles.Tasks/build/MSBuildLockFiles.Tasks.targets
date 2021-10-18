@@ -3,20 +3,25 @@
     <BuildLockFilePath Condition="'$(BuildLockFilePath)' == ''">$([System.IO.Path]::Combine($(MSBuildProjectDirectory), 'build.lock.yml'))</BuildLockFilePath>
   </PropertyGroup>
 
-  <Target Name="SdkStyleWriteTargetFrameworkLockFile"
+  <Target Name="WriteTargetFrameworkLockFileAfterBuild"
           AfterTargets="Build"
-          Condition="'$(TargetFramework)' != ''"
+          Condition="'$(UsingMicrosoftNETSdk)' == 'true' And '$(TargetFramework)' != ''"
           DependsOnTargets="WriteTargetFrameworkLockFile" />
 
-  <Target Name="LegacyWriteTargetFrameworkLockFile"
+  <Target Name="LegacyWriteBuildLockFileAfterBuild"
           AfterTargets="Build"
-          Condition="'$(TargetFrameworkVersion)' != ''"
+          Condition="'$(UsingMicrosoftNETSdk)' != 'true' And '$(TargetFrameworkVersion)' != ''"
           DependsOnTargets="WriteTargetFrameworkLockFile;WriteBuildLockFile" />
 
-  <Target Name="SdkStyleWriteBuildLockFile"
+  <Target Name="WriteBuildLockFileAfterBuild"
           AfterTargets="Build"
           DependsOnTargets="WriteBuildLockFile"
-          Condition="'$(IsInnerBuild)' != 'true'" />
+          Condition="'$(UsingMicrosoftNETSdk)' == 'true' And '$(GeneratePackageOnBuild)' != 'true' And '$(IsInnerBuild)' != 'true'" />
+
+  <Target Name="WriteBuildLockFileAfterPack"
+          AfterTargets="Pack"
+          DependsOnTargets="WriteBuildLockFile"
+          Condition="'$(UsingMicrosoftNETSdk)' == 'true' And '$(GeneratePackageOnBuild)' == 'true' And '$(IsInnerBuild)' != 'true'" />
 
   <Target Name="WriteTargetFrameworkLockFile"
           DependsOnTargets="GetTargetFrameworkLockFiles">
@@ -48,10 +53,25 @@
   </Target>
 
   <Target Name="WriteBuildLockFile"
-          AfterTargets="Build"
-          DependsOnTargets="GetTargetFrameworkLockFiles"
-          Condition="'$(IsInnerBuild)' != 'true'">
+          DependsOnTargets="GetTargetFrameworkLockFiles">
+    <ItemGroup>
+      <_FolderRoots Remove="@(_FolderRoots)" />
+      <_FolderRoots Include="#PackageOutputPath" Path="$([MSBuild]::NormalizePath($(PackageOutputPath)))" Condition="'$(PackageOutputPath)' != ''" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <_BuildOutputs Remove="@(_BuildOutputs)" />
+    </ItemGroup>
+
+    <ItemGroup Condition="'$(GeneratePackageOnBuild)' == 'true' And '$(ContinuePackingAfterGeneratingNuspec)' != 'false'">
+      <_BuildOutputs Include="$(PackageOutputAbsolutePath)$(PackageId).$(PackageVersion).nupkg" />
+      <_BuildOutputs Include="$(PackageOutputAbsolutePath)$(PackageId).$(PackageVersion).snupkg"
+                     Condition="'$(SymbolPackageFormat)' == 'nupkg' "/>
+    </ItemGroup>
+
     <WriteBuildLockFile LockFiles="@(TargetFrameworkLockFile)"
+                        FolderRoots="@(_FolderRoots)"
+                        Outputs="@(_BuildOutputs)"
                         FilePath="$(BuildLockFilePath)" />
   </Target>
 

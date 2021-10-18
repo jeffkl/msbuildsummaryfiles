@@ -8,6 +8,12 @@ namespace MSBuildLockFiles.Tasks
     public class WriteBuildLockFile : MSBuildLockFileTaskBase
     {
         [Required]
+        public ITaskItem[] Outputs { get; set; }
+
+        [Required]
+        public ITaskItem[] FolderRoots { get; set; }
+
+        [Required]
         public string FilePath { get; set; }
 
         [Required]
@@ -16,6 +22,17 @@ namespace MSBuildLockFiles.Tasks
         public override bool Execute()
         {
             using StreamWriter writer = new StreamWriter(FilePath);
+
+            if (Outputs.Any())
+            {
+                writer.WriteLine("all:");
+                writer.WriteLine("  outputs:");
+                foreach (var item in Outputs.GetNormalizedPaths(FolderRoots).OrderBy(i => i))
+                {
+                    writer.Write("  - ");
+                    writer.WriteLine(item);
+                }
+            }
 
             foreach (string fullPath in LockFiles.Select(i => i.GetMetadata("FullPath")).OrderBy(i => i, StringComparer.OrdinalIgnoreCase))
             {
