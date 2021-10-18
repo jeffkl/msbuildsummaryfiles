@@ -3,13 +3,13 @@ using System.IO;
 using System.Runtime.InteropServices;
 using Microsoft.Build.Utilities.ProjectCreation;
 
-namespace MSBuildLockFiles.Tasks.UnitTests
+namespace MSBuildSummaryFiles.Tasks.UnitTests
 {
     public abstract class TestBase : MSBuildTestBase
     {
         private readonly string _testRootPath = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
 
-        private static readonly Lazy<string> TaskAssemblyFullPathLazy = new Lazy<string>(() => typeof(WriteBuildLockFile).Assembly.Location);
+        private static readonly Lazy<string> TaskAssemblyFullPathLazy = new Lazy<string>(() => typeof(WriteBuildSummaryFile).Assembly.Location);
 
         public string TestRootPath
         {

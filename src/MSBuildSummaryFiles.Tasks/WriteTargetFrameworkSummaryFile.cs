@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
-namespace MSBuildLockFiles.Tasks
+namespace MSBuildSummaryFiles.Tasks
 {
-    public class WriteTargetFrameworkLockFile : MSBuildLockFileTaskBase
+    public class WriteTargetFrameworkSummaryFile : MSBuildSummaryFileTaskBase
     {
         [Required]
         public ITaskItem[] DefineConstants { get; set; }
@@ -81,7 +81,5 @@ namespace MSBuildLockFiles.Tasks
 
             return base.Execute();
         }
-
-
     }
 }

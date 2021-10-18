@@ -1,30 +1,30 @@
 ﻿<Project>
   <PropertyGroup>
-    <BuildLockFilePath Condition="'$(BuildLockFilePath)' == ''">$([System.IO.Path]::Combine($(MSBuildProjectDirectory), 'build.lock.yml'))</BuildLockFilePath>
+    <BuildSummaryFilePath Condition="'$(BuildSummaryFilePath)' == ''">$([System.IO.Path]::Combine($(MSBuildProjectDirectory), 'build.Summary.yml'))</BuildSummaryFilePath>
   </PropertyGroup>
 
-  <Target Name="WriteTargetFrameworkLockFileAfterBuild"
+  <Target Name="WriteTargetFrameworkSummaryFileAfterBuild"
           AfterTargets="Build"
           Condition="'$(UsingMicrosoftNETSdk)' == 'true' And '$(TargetFramework)' != ''"
-          DependsOnTargets="WriteTargetFrameworkLockFile" />
+          DependsOnTargets="WriteTargetFrameworkSummaryFile" />
 
-  <Target Name="LegacyWriteBuildLockFileAfterBuild"
+  <Target Name="LegacyWriteBuildSummaryFileAfterBuild"
           AfterTargets="Build"
           Condition="'$(UsingMicrosoftNETSdk)' != 'true' And '$(TargetFrameworkVersion)' != ''"
-          DependsOnTargets="WriteTargetFrameworkLockFile;WriteBuildLockFile" />
+          DependsOnTargets="WriteTargetFrameworkSummaryFile;WriteBuildSummaryFile" />
 
-  <Target Name="WriteBuildLockFileAfterBuild"
+  <Target Name="WriteBuildSummaryFileAfterBuild"
           AfterTargets="Build"
-          DependsOnTargets="WriteBuildLockFile"
+          DependsOnTargets="WriteBuildSummaryFile"
           Condition="'$(UsingMicrosoftNETSdk)' == 'true' And '$(GeneratePackageOnBuild)' != 'true' And '$(IsInnerBuild)' != 'true'" />
 
-  <Target Name="WriteBuildLockFileAfterPack"
+  <Target Name="WriteBuildSummaryFileAfterPack"
           AfterTargets="Pack"
-          DependsOnTargets="WriteBuildLockFile"
+          DependsOnTargets="WriteBuildSummaryFile"
           Condition="'$(UsingMicrosoftNETSdk)' == 'true' And '$(GeneratePackageOnBuild)' == 'true' And '$(IsInnerBuild)' != 'true'" />
 
-  <Target Name="WriteTargetFrameworkLockFile"
-          DependsOnTargets="GetTargetFrameworkLockFiles">
+  <Target Name="WriteTargetFrameworkSummaryFile"
+          DependsOnTargets="GetTargetFrameworkSummaryFiles">
     <ItemGroup>
       <_FolderRoots Remove="@(_FolderRoots)" />
       <_FolderRoots Include="#OutputPath" Path="$([MSBuild]::NormalizePath($(OutputPath)))" />
@@ -38,22 +38,22 @@
     </ItemGroup>
 
     <PropertyGroup>
-      <_LockFileTargetFramework Condition="'$(TargetFramework)' != ''">$(TargetFramework)</_LockFileTargetFramework>
-      <_LockFileTargetFramework Condition="'$(_LockFileTargetFramework)' == '' And '$(_TargetFrameworkVersionWithoutV)' != ''">net$(_TargetFrameworkVersionWithoutV.Replace('.', ''))</_LockFileTargetFramework>
+      <_SummaryFileTargetFramework Condition="'$(TargetFramework)' != ''">$(TargetFramework)</_SummaryFileTargetFramework>
+      <_SummaryFileTargetFramework Condition="'$(_SummaryFileTargetFramework)' == '' And '$(_TargetFrameworkVersionWithoutV)' != ''">net$(_TargetFrameworkVersionWithoutV.Replace('.', ''))</_SummaryFileTargetFramework>
     </PropertyGroup>
 
-    <WriteTargetFrameworkLockFile
+    <WriteTargetFrameworkSummaryFile
       References="@(ReferencePathWithRefAssemblies)"
       FolderRoots="@(_FolderRoots)"
       DefineConstants="$(DefineConstants)"
       Sources="@(Compile);@(EmbeddedResource)"
-      TargetFramework="$(_LockFileTargetFramework)"
+      TargetFramework="$(_SummaryFileTargetFramework)"
       FileWrites="@(FileWrites)"
-      FilePath="@(TargetFrameworkLockFile)" />
+      FilePath="@(TargetFrameworkSummaryFile)" />
   </Target>
 
-  <Target Name="WriteBuildLockFile"
-          DependsOnTargets="GetTargetFrameworkLockFiles">
+  <Target Name="WriteBuildSummaryFile"
+          DependsOnTargets="GetTargetFrameworkSummaryFiles">
     <ItemGroup>
       <_FolderRoots Remove="@(_FolderRoots)" />
       <_FolderRoots Include="#PackageOutputPath" Path="$([MSBuild]::NormalizePath($(PackageOutputPath)))" Condition="'$(PackageOutputPath)' != ''" />
@@ -69,21 +69,21 @@
                      Condition="'$(SymbolPackageFormat)' == 'nupkg' "/>
     </ItemGroup>
 
-    <WriteBuildLockFile LockFiles="@(TargetFrameworkLockFile)"
+    <WriteBuildSummaryFile SummaryFiles="@(TargetFrameworkSummaryFile)"
                         FolderRoots="@(_FolderRoots)"
                         Outputs="@(_BuildOutputs)"
-                        FilePath="$(BuildLockFilePath)" />
+                        FilePath="$(BuildSummaryFilePath)" />
   </Target>
 
-  <Target Name="GetTargetFrameworkLockFiles"
-          DependsOnTargets="GetTargetFrameworkLockFile"
-          Returns="@(TargetFrameworkLockFile)">
+  <Target Name="GetTargetFrameworkSummaryFiles"
+          DependsOnTargets="GetTargetFrameworkSummaryFile"
+          Returns="@(TargetFrameworkSummaryFile)">
   </Target>
 
-  <Target Name="GetTargetFrameworkLockFile"
-          Returns="@(TargetFrameworkLockFile)">
+  <Target Name="GetTargetFrameworkSummaryFile"
+          Returns="@(TargetFrameworkSummaryFile)">
     <ItemGroup>
-      <TargetFrameworkLockFile Include="$([MSBuild]::ValueOrDefault($(TargetFrameworkLockFilePath), '$(IntermediateOutputPath)build.lock.yml'))" />
+      <TargetFrameworkSummaryFile Include="$([MSBuild]::ValueOrDefault($(TargetFrameworkSummaryFilePath), '$(IntermediateOutputPath)build.Summary.yml'))" />
     </ItemGroup>
   </Target>
 </Project>

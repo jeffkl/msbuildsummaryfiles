@@ -3,9 +3,9 @@ using System;
 using System.IO;
 using System.Linq;
 
-namespace MSBuildLockFiles.Tasks
+namespace MSBuildSummaryFiles.Tasks
 {
-    public class WriteBuildLockFile : MSBuildLockFileTaskBase
+    public class WriteBuildSummaryFile : MSBuildSummaryFileTaskBase
     {
         [Required]
         public ITaskItem[] Outputs { get; set; }
@@ -17,7 +17,7 @@ namespace MSBuildLockFiles.Tasks
         public string FilePath { get; set; }
 
         [Required]
-        public ITaskItem[] LockFiles { get; set; }
+        public ITaskItem[] SummaryFiles { get; set; }
 
         public override bool Execute()
         {
@@ -34,7 +34,7 @@ namespace MSBuildLockFiles.Tasks
                 }
             }
 
-            foreach (string fullPath in LockFiles.Select(i => i.GetMetadata("FullPath")).OrderBy(i => i, StringComparer.OrdinalIgnoreCase))
+            foreach (string fullPath in SummaryFiles.Select(i => i.GetMetadata("FullPath")).OrderBy(i => i, StringComparer.OrdinalIgnoreCase))
             {
                 using StreamReader reader = new StreamReader(fullPath);
 
