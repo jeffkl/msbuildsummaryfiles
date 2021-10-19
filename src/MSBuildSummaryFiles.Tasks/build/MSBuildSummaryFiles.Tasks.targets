@@ -1,6 +1,6 @@
 ﻿<Project>
   <PropertyGroup>
-    <BuildSummaryFilePath Condition="'$(BuildSummaryFilePath)' == ''">$([System.IO.Path]::Combine($(MSBuildProjectDirectory), 'build.Summary.yml'))</BuildSummaryFilePath>
+    <BuildSummaryFilePath Condition="'$(BuildSummaryFilePath)' == ''">$([System.IO.Path]::Combine($(MSBuildProjectDirectory), 'build.summary.yml'))</BuildSummaryFilePath>
   </PropertyGroup>
 
   <Target Name="WriteTargetFrameworkSummaryFileAfterBuild"
