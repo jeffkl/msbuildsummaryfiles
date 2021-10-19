@@ -1222,7 +1222,7 @@ netstandard2.1:
 #if NETCOREAPP3_1
             const string expected = @"all:
   outputs:
-  - ProjectA.1.0.0.nupkg
+  - ProjectA.{PackageVersion}.nupkg
 netstandard1.0:
   constants:
   - DEBUG
@@ -1261,7 +1261,7 @@ netstandard1.0:
 #else
             const string expected = @"all:
   outputs:
-  - ProjectA.1.0.0.nupkg
+  - ProjectA.{PackageVersion}.nupkg
 netstandard1.0:
   constants:
   - DEBUG
