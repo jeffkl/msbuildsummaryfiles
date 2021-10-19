@@ -1,15 +1,23 @@
-﻿using System;
+﻿// Copyright (c) Microsoft Corporation.
+//
+// Licensed under the MIT license.
+
+using Microsoft.Build.Utilities.ProjectCreation;
+using System;
 using System.IO;
 using System.Runtime.InteropServices;
-using Microsoft.Build.Utilities.ProjectCreation;
 
 namespace MSBuildSummaryFiles.Tasks.UnitTests
 {
     public abstract class TestBase : MSBuildTestBase
     {
+        private static readonly Lazy<string> TaskAssemblyFullPathLazy = new Lazy<string>(() => typeof(WriteBuildSummaryFile).Assembly.Location);
+
         private readonly string _testRootPath = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
 
-        private static readonly Lazy<string> TaskAssemblyFullPathLazy = new Lazy<string>(() => typeof(WriteBuildSummaryFile).Assembly.Location);
+        public static bool IsWindows { get; } = RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
+
+        public string TaskAssemblyFullPath => TaskAssemblyFullPathLazy.Value;
 
         public string TestRootPath
         {
@@ -19,10 +27,6 @@ namespace MSBuildSummaryFiles.Tasks.UnitTests
                 return _testRootPath;
             }
         }
-
-        public string TaskAssemblyFullPath => TaskAssemblyFullPathLazy.Value;
-
-        public static bool IsWindows { get; } = RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
 
         public void Dispose()
         {
@@ -62,7 +66,7 @@ namespace MSBuildSummaryFiles.Tasks.UnitTests
 
         private string GetFileContent(string file)
         {
-            var content = string.Empty;
+            string content = string.Empty;
 
             if (string.Equals(file, "strings.resx", StringComparison.OrdinalIgnoreCase))
             {
@@ -92,7 +96,7 @@ namespace MSBuildSummaryFiles.Tasks.UnitTests
   </resheader>
   <resheader name=""writer"">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </resheader>  
+  </resheader>
 </root>";
         }
     }

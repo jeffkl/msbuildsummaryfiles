@@ -16,7 +16,14 @@
 
   <ItemGroup>
     <GlobalPackageReference Include="Microsoft.Build.Artifacts" Version="2.2.0" Condition="'$(EnableArtifacts)' != 'false'" />
+    <GlobalPackageReference Include="Microsoft.CodeAnalysis.CSharp.CodeStyle" Version="3.11.0" Condition="'$(EnableMicrosoftCodeAnalysisCSharpCodeStyle)' != 'false'" />
     <GlobalPackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" Condition="'$(EnableSourceLink)' != 'false'" />
     <GlobalPackageReference Include="Nerdbank.GitVersioning" Version="3.4.240" Condition="'$(EnableGitVersioning)' != 'false'" />
+    <GlobalPackageReference Include="StyleCop.Analyzers" Version="1.1.118" Condition="'$(EnableStyleCopAnalyzers)' != 'false'" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(EnableStyleCopAnalyzers)' != 'false'">
+    <Compile Include="$(MSBuildThisFileDirectory)src\GlobalSuppressions.cs" Link="GlobalSuppressions.cs" />
+    <AdditionalFiles Include="$(MSBuildThisFileDirectory)stylecop.json" Visible="false" />
   </ItemGroup>
 </Project>

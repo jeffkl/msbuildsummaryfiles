@@ -1,38 +1,66 @@
-﻿using Microsoft.Build.Framework;
-using System.Collections.Generic;
+﻿// Copyright (c) Microsoft Corporation.
+//
+// Licensed under the MIT license.
+
+using Microsoft.Build.Framework;
 using System.IO;
 using System.Linq;
 
 namespace MSBuildSummaryFiles.Tasks
 {
+    /// <summary>
+    /// Represents a task that writes a build summary file for a target framework.
+    /// </summary>
     public class WriteTargetFrameworkSummaryFile : MSBuildSummaryFileTaskBase
     {
+        /// <summary>
+        /// Gets or sets an array of <see cref="ITaskItem" /> items representing compiler constants.
+        /// </summary>
         [Required]
         public ITaskItem[] DefineConstants { get; set; }
 
+        /// <summary>
+        /// Gets or sets the path to the file to write.
+        /// </summary>
         [Required]
         public string FilePath { get; set; }
 
+        /// <summary>
+        /// Gets or sets an array of <see cref="ITaskItem" /> items representing file writes.
+        /// </summary>
         [Required]
         public ITaskItem[] FileWrites { get; set; }
 
+        /// <summary>
+        /// Gets or sets an array of <see cref="ITaskItem" /> items representing folder roots.
+        /// </summary>
         [Required]
         public ITaskItem[] FolderRoots { get; set; }
 
+        /// <summary>
+        /// Gets or sets an array of <see cref="ITaskItem" /> items representing assembly references.
+        /// </summary>
         [Required]
         public ITaskItem[] References { get; set; }
 
+        /// <summary>
+        /// Gets or sets an array of <see cref="ITaskItem" /> items representing source files.
+        /// </summary>
         [Required]
         public ITaskItem[] Sources { get; set; }
 
+        /// <summary>
+        /// Gets or sets the target framework.
+        /// </summary>
         [Required]
         public string TargetFramework { get; set; }
 
+        /// <inheritdoc />
         public override bool Execute()
         {
             FileInfo fileInfo = new FileInfo(FilePath);
 
-            fileInfo.Directory.Create();
+            fileInfo.Directory!.Create();
 
             using StreamWriter writer = new StreamWriter(fileInfo.FullName);
 

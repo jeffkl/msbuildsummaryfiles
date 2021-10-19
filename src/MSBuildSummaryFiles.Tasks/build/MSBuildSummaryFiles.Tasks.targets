@@ -83,7 +83,7 @@
   <Target Name="GetTargetFrameworkSummaryFile"
           Returns="@(TargetFrameworkSummaryFile)">
     <ItemGroup>
-      <TargetFrameworkSummaryFile Include="$([MSBuild]::ValueOrDefault($(TargetFrameworkSummaryFilePath), '$(IntermediateOutputPath)build.Summary.yml'))" />
+      <TargetFrameworkSummaryFile Include="$([MSBuild]::ValueOrDefault($(TargetFrameworkSummaryFilePath), '$(IntermediateOutputPath)build.summary.yml'))" />
     </ItemGroup>
   </Target>
 </Project>

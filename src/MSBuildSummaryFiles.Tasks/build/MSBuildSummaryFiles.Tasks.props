@@ -1,10 +1,10 @@
 ﻿<Project>
-  <PropertyGroup Condition="'$(MSBuildSummaryFilesTaskAssembly)' == ''">
-    <MSBuildSummaryFilesTaskAssembly Condition="'$(MSBuildRuntimeType)' == 'Full'">$(MSBuildThisFileDirectory)net472\MSBuildSummaryFiles.Tasks.dll</MSBuildSummaryFilesTaskAssembly>
-    <MSBuildSummaryFilesTaskAssembly Condition="'$(MSBuildRuntimeType)' == 'Core'">$(MSBuildThisFileDirectory)netstandard2.0\MSBuildSummaryFiles.Tasks.dll</MSBuildSummaryFilesTaskAssembly>
+  <PropertyGroup Condition="'$(MSBuildSummaryFilesTaskAssemblyPath)' == ''">
+    <MSBuildSummaryFilesTaskAssemblyPath Condition="'$(MSBuildRuntimeType)' == 'Full'">$(MSBuildThisFileDirectory)net472\MSBuildSummaryFiles.Tasks.dll</MSBuildSummaryFilesTaskAssemblyPath>
+    <MSBuildSummaryFilesTaskAssemblyPath Condition="'$(MSBuildRuntimeType)' == 'Core'">$(MSBuildThisFileDirectory)netstandard2.0\MSBuildSummaryFiles.Tasks.dll</MSBuildSummaryFilesTaskAssemblyPath>
   </PropertyGroup>
   
-  <UsingTask TaskName="WriteTargetFrameworkSummaryFile" AssemblyFile="$(MSBuildSummaryFilesTaskAssembly)" />
+  <UsingTask TaskName="WriteTargetFrameworkSummaryFile" AssemblyFile="$(MSBuildSummaryFilesTaskAssemblyPath)" />
 
-  <UsingTask TaskName="WriteBuildSummaryFile" AssemblyFile="$(MSBuildSummaryFilesTaskAssembly)" />
+  <UsingTask TaskName="WriteBuildSummaryFile" AssemblyFile="$(MSBuildSummaryFilesTaskAssemblyPath)" />
 </Project>

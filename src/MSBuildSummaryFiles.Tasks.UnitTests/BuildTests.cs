@@ -1,7 +1,11 @@
-﻿using System;
-using System.IO;
+﻿// Copyright (c) Microsoft Corporation.
+//
+// Licensed under the MIT license.
+
 using Microsoft.Build.Utilities.ProjectCreation;
 using Shouldly;
+using System;
+using System.IO;
 using Xunit;
 
 namespace MSBuildSummaryFiles.Tasks.UnitTests
@@ -12,20 +16,7 @@ namespace MSBuildSummaryFiles.Tasks.UnitTests
         public void MultiTargetingBuild()
         {
 #if NETFRAMEWORK
-            string[] targetFrameworks = { "net46", "net472" };
-#else
-            string[] targetFrameworks = { "netstandard2.0", "netstandard2.1" };
-#endif
-            CreateSdkStyleProject(targetFrameworks)
-                .Save(GetTempProjectFile("ProjectA", "AAA.cs", "BBB.cs", "strings.resx"))
-                .TryBuild(restore: true, out bool result, out BuildOutput buildOutput)
-                .TryGetPropertyValue("BuildSummaryFilePath", out string buildSummaryFilePath);
-
-            result.ShouldBeTrue(buildOutput.GetConsoleLog());
-
-            File.ReadAllText(buildSummaryFilePath).ShouldBe(
-#if NETFRAMEWORK
-                @"net46:
+            const string expected = @"net46:
   constants:
   - DEBUG
   - NET20_OR_GREATER
@@ -94,9 +85,9 @@ net472:
   - AAA.cs
   - BBB.cs
   - strings.resx
-",
+";
 #elif NET5_0
-                @"netstandard2.0:
+            const string expected = @"netstandard2.0:
   constants:
   - DEBUG
   - NETSTANDARD
@@ -377,9 +368,9 @@ netstandard2.1:
   - AAA.cs
   - BBB.cs
   - strings.resx
-",
+";
 #elif NET6_0
-                @"netstandard2.0:
+            const string expected = @"netstandard2.0:
   constants:
   - DEBUG
   - NETSTANDARD
@@ -660,9 +651,9 @@ netstandard2.1:
   - AAA.cs
   - BBB.cs
   - strings.resx
-",
+";
 #else
-                @"netstandard2.0:
+            const string expected = @"netstandard2.0:
   constants:
   - DEBUG
   - NETSTANDARD
@@ -926,14 +917,293 @@ netstandard2.1:
   - AAA.cs
   - BBB.cs
   - strings.resx
-",
+";
 #endif
-                StringCompareShould.IgnoreLineEndings);
+
+#if NETFRAMEWORK
+            string[] targetFrameworks = { "net46", "net472" };
+#else
+            string[] targetFrameworks = { "netstandard2.0", "netstandard2.1" };
+#endif
+            CreateSdkStyleProject(targetFrameworks)
+                .Save(GetTempProjectFile("ProjectA", "AAA.cs", "BBB.cs", "strings.resx"))
+                .TryBuild(restore: true, out bool result, out BuildOutput buildOutput)
+                .TryGetPropertyValue("BuildSummaryFilePath", out string buildSummaryFilePath);
+
+            result.ShouldBeTrue(buildOutput.GetConsoleLog());
+
+            File.ReadAllText(buildSummaryFilePath).ShouldBe(expected, StringCompareShould.IgnoreLineEndings);
         }
 
         [Fact]
         public void SingleTargetingBuild()
         {
+#if NETFRAMEWORK || NET5_0_OR_GREATER
+            const string expected = @"netstandard2.0:
+  constants:
+  - DEBUG
+  - NETSTANDARD
+  - NETSTANDARD1_0_OR_GREATER
+  - NETSTANDARD1_1_OR_GREATER
+  - NETSTANDARD1_2_OR_GREATER
+  - NETSTANDARD1_3_OR_GREATER
+  - NETSTANDARD1_4_OR_GREATER
+  - NETSTANDARD1_5_OR_GREATER
+  - NETSTANDARD1_6_OR_GREATER
+  - NETSTANDARD2_0
+  - NETSTANDARD2_0_OR_GREATER
+  - TRACE
+  outputs:
+  - ProjectA.deps.json
+  - ProjectA.dll
+  - ProjectA.pdb
+  references:
+  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/Microsoft.Win32.Primitives.dll
+  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/mscorlib.dll
+  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/netstandard.dll
+  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.AppContext.dll
+  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Collections.Concurrent.dll
+  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Collections.dll
+  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Collections.NonGeneric.dll
+  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Collections.Specialized.dll
+  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.ComponentModel.Composition.dll
+  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.ComponentModel.dll
+  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.ComponentModel.EventBasedAsync.dll
+  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.ComponentModel.Primitives.dll
+  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.ComponentModel.TypeConverter.dll
+  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Console.dll
+  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Core.dll
+  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Data.Common.dll
+  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Data.dll
+  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Diagnostics.Contracts.dll
+  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Diagnostics.Debug.dll
+  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Diagnostics.FileVersionInfo.dll
+  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Diagnostics.Process.dll
+  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Diagnostics.StackTrace.dll
+  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Diagnostics.TextWriterTraceListener.dll
+  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Diagnostics.Tools.dll
+  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Diagnostics.TraceSource.dll
+  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Diagnostics.Tracing.dll
+  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.dll
+  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Drawing.dll
+  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Drawing.Primitives.dll
+  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Dynamic.Runtime.dll
+  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Globalization.Calendars.dll
+  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Globalization.dll
+  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Globalization.Extensions.dll
+  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.IO.Compression.dll
+  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.IO.Compression.FileSystem.dll
+  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.IO.Compression.ZipFile.dll
+  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.IO.dll
+  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.IO.FileSystem.dll
+  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.IO.FileSystem.DriveInfo.dll
+  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.IO.FileSystem.Primitives.dll
+  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.IO.FileSystem.Watcher.dll
+  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.IO.IsolatedStorage.dll
+  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.IO.MemoryMappedFiles.dll
+  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.IO.Pipes.dll
+  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.IO.UnmanagedMemoryStream.dll
+  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Linq.dll
+  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Linq.Expressions.dll
+  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Linq.Parallel.dll
+  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Linq.Queryable.dll
+  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Net.dll
+  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Net.Http.dll
+  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Net.NameResolution.dll
+  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Net.NetworkInformation.dll
+  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Net.Ping.dll
+  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Net.Primitives.dll
+  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Net.Requests.dll
+  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Net.Security.dll
+  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Net.Sockets.dll
+  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Net.WebHeaderCollection.dll
+  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Net.WebSockets.Client.dll
+  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Net.WebSockets.dll
+  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Numerics.dll
+  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.ObjectModel.dll
+  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Reflection.dll
+  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Reflection.Extensions.dll
+  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Reflection.Primitives.dll
+  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Resources.Reader.dll
+  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Resources.ResourceManager.dll
+  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Resources.Writer.dll
+  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Runtime.CompilerServices.VisualC.dll
+  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Runtime.dll
+  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Runtime.Extensions.dll
+  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Runtime.Handles.dll
+  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Runtime.InteropServices.dll
+  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Runtime.InteropServices.RuntimeInformation.dll
+  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Runtime.Numerics.dll
+  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Runtime.Serialization.dll
+  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Runtime.Serialization.Formatters.dll
+  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Runtime.Serialization.Json.dll
+  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Runtime.Serialization.Primitives.dll
+  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Runtime.Serialization.Xml.dll
+  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Security.Claims.dll
+  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Security.Cryptography.Algorithms.dll
+  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Security.Cryptography.Csp.dll
+  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Security.Cryptography.Encoding.dll
+  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Security.Cryptography.Primitives.dll
+  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Security.Cryptography.X509Certificates.dll
+  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Security.Principal.dll
+  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Security.SecureString.dll
+  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.ServiceModel.Web.dll
+  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Text.Encoding.dll
+  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Text.Encoding.Extensions.dll
+  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Text.RegularExpressions.dll
+  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Threading.dll
+  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Threading.Overlapped.dll
+  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Threading.Tasks.dll
+  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Threading.Tasks.Parallel.dll
+  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Threading.Thread.dll
+  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Threading.ThreadPool.dll
+  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Threading.Timer.dll
+  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Transactions.dll
+  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.ValueTuple.dll
+  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Web.dll
+  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Windows.dll
+  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Xml.dll
+  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Xml.Linq.dll
+  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Xml.ReaderWriter.dll
+  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Xml.Serialization.dll
+  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Xml.XDocument.dll
+  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Xml.XmlDocument.dll
+  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Xml.XmlSerializer.dll
+  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Xml.XPath.dll
+  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Xml.XPath.XDocument.dll
+  sources:
+  - Strings.resx
+";
+#else
+            const string expected = @"netstandard2.0:
+  constants:
+  - DEBUG
+  - NETSTANDARD
+  - NETSTANDARD2_0
+  - TRACE
+  outputs:
+  - ProjectA.deps.json
+  - ProjectA.dll
+  - ProjectA.pdb
+  references:
+  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/Microsoft.Win32.Primitives.dll
+  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/mscorlib.dll
+  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/netstandard.dll
+  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.AppContext.dll
+  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Collections.Concurrent.dll
+  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Collections.dll
+  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Collections.NonGeneric.dll
+  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Collections.Specialized.dll
+  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.ComponentModel.Composition.dll
+  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.ComponentModel.dll
+  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.ComponentModel.EventBasedAsync.dll
+  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.ComponentModel.Primitives.dll
+  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.ComponentModel.TypeConverter.dll
+  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Console.dll
+  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Core.dll
+  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Data.Common.dll
+  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Data.dll
+  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Diagnostics.Contracts.dll
+  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Diagnostics.Debug.dll
+  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Diagnostics.FileVersionInfo.dll
+  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Diagnostics.Process.dll
+  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Diagnostics.StackTrace.dll
+  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Diagnostics.TextWriterTraceListener.dll
+  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Diagnostics.Tools.dll
+  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Diagnostics.TraceSource.dll
+  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Diagnostics.Tracing.dll
+  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.dll
+  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Drawing.dll
+  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Drawing.Primitives.dll
+  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Dynamic.Runtime.dll
+  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Globalization.Calendars.dll
+  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Globalization.dll
+  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Globalization.Extensions.dll
+  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.IO.Compression.dll
+  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.IO.Compression.FileSystem.dll
+  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.IO.Compression.ZipFile.dll
+  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.IO.dll
+  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.IO.FileSystem.dll
+  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.IO.FileSystem.DriveInfo.dll
+  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.IO.FileSystem.Primitives.dll
+  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.IO.FileSystem.Watcher.dll
+  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.IO.IsolatedStorage.dll
+  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.IO.MemoryMappedFiles.dll
+  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.IO.Pipes.dll
+  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.IO.UnmanagedMemoryStream.dll
+  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Linq.dll
+  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Linq.Expressions.dll
+  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Linq.Parallel.dll
+  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Linq.Queryable.dll
+  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Net.dll
+  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Net.Http.dll
+  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Net.NameResolution.dll
+  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Net.NetworkInformation.dll
+  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Net.Ping.dll
+  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Net.Primitives.dll
+  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Net.Requests.dll
+  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Net.Security.dll
+  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Net.Sockets.dll
+  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Net.WebHeaderCollection.dll
+  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Net.WebSockets.Client.dll
+  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Net.WebSockets.dll
+  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Numerics.dll
+  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.ObjectModel.dll
+  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Reflection.dll
+  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Reflection.Extensions.dll
+  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Reflection.Primitives.dll
+  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Resources.Reader.dll
+  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Resources.ResourceManager.dll
+  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Resources.Writer.dll
+  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Runtime.CompilerServices.VisualC.dll
+  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Runtime.dll
+  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Runtime.Extensions.dll
+  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Runtime.Handles.dll
+  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Runtime.InteropServices.dll
+  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Runtime.InteropServices.RuntimeInformation.dll
+  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Runtime.Numerics.dll
+  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Runtime.Serialization.dll
+  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Runtime.Serialization.Formatters.dll
+  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Runtime.Serialization.Json.dll
+  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Runtime.Serialization.Primitives.dll
+  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Runtime.Serialization.Xml.dll
+  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Security.Claims.dll
+  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Security.Cryptography.Algorithms.dll
+  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Security.Cryptography.Csp.dll
+  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Security.Cryptography.Encoding.dll
+  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Security.Cryptography.Primitives.dll
+  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Security.Cryptography.X509Certificates.dll
+  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Security.Principal.dll
+  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Security.SecureString.dll
+  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.ServiceModel.Web.dll
+  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Text.Encoding.dll
+  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Text.Encoding.Extensions.dll
+  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Text.RegularExpressions.dll
+  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Threading.dll
+  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Threading.Overlapped.dll
+  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Threading.Tasks.dll
+  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Threading.Tasks.Parallel.dll
+  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Threading.Thread.dll
+  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Threading.ThreadPool.dll
+  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Threading.Timer.dll
+  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Transactions.dll
+  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.ValueTuple.dll
+  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Web.dll
+  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Windows.dll
+  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Xml.dll
+  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Xml.Linq.dll
+  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Xml.ReaderWriter.dll
+  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Xml.Serialization.dll
+  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Xml.XDocument.dll
+  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Xml.XmlDocument.dll
+  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Xml.XmlSerializer.dll
+  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Xml.XPath.dll
+  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Xml.XPath.XDocument.dll
+  sources:
+  - Strings.resx
+";
+#endif
+
             CreateSdkStyleProject("netstandard2.0")
                 .Save(GetTempProjectFile("ProjectA", "Strings.resx"))
                 .TryBuild(restore: true, out bool result, out BuildOutput buildOutput)
@@ -943,278 +1213,92 @@ netstandard2.1:
 
             buildSummaryFilePath.ShouldNotBeNullOrEmpty();
 
-            File.ReadAllText(buildSummaryFilePath).ShouldBe(
-#if NETFRAMEWORK || NET5_0_OR_GREATER
-                @"netstandard2.0:
-  constants:
-  - DEBUG
-  - NETSTANDARD
-  - NETSTANDARD1_0_OR_GREATER
-  - NETSTANDARD1_1_OR_GREATER
-  - NETSTANDARD1_2_OR_GREATER
-  - NETSTANDARD1_3_OR_GREATER
-  - NETSTANDARD1_4_OR_GREATER
-  - NETSTANDARD1_5_OR_GREATER
-  - NETSTANDARD1_6_OR_GREATER
-  - NETSTANDARD2_0
-  - NETSTANDARD2_0_OR_GREATER
-  - TRACE
-  outputs:
-  - ProjectA.deps.json
-  - ProjectA.dll
-  - ProjectA.pdb
-  references:
-  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/Microsoft.Win32.Primitives.dll
-  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/mscorlib.dll
-  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/netstandard.dll
-  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.AppContext.dll
-  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Collections.Concurrent.dll
-  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Collections.dll
-  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Collections.NonGeneric.dll
-  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Collections.Specialized.dll
-  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.ComponentModel.Composition.dll
-  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.ComponentModel.dll
-  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.ComponentModel.EventBasedAsync.dll
-  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.ComponentModel.Primitives.dll
-  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.ComponentModel.TypeConverter.dll
-  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Console.dll
-  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Core.dll
-  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Data.Common.dll
-  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Data.dll
-  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Diagnostics.Contracts.dll
-  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Diagnostics.Debug.dll
-  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Diagnostics.FileVersionInfo.dll
-  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Diagnostics.Process.dll
-  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Diagnostics.StackTrace.dll
-  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Diagnostics.TextWriterTraceListener.dll
-  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Diagnostics.Tools.dll
-  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Diagnostics.TraceSource.dll
-  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Diagnostics.Tracing.dll
-  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.dll
-  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Drawing.dll
-  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Drawing.Primitives.dll
-  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Dynamic.Runtime.dll
-  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Globalization.Calendars.dll
-  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Globalization.dll
-  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Globalization.Extensions.dll
-  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.IO.Compression.dll
-  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.IO.Compression.FileSystem.dll
-  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.IO.Compression.ZipFile.dll
-  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.IO.dll
-  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.IO.FileSystem.dll
-  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.IO.FileSystem.DriveInfo.dll
-  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.IO.FileSystem.Primitives.dll
-  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.IO.FileSystem.Watcher.dll
-  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.IO.IsolatedStorage.dll
-  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.IO.MemoryMappedFiles.dll
-  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.IO.Pipes.dll
-  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.IO.UnmanagedMemoryStream.dll
-  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Linq.dll
-  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Linq.Expressions.dll
-  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Linq.Parallel.dll
-  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Linq.Queryable.dll
-  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Net.dll
-  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Net.Http.dll
-  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Net.NameResolution.dll
-  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Net.NetworkInformation.dll
-  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Net.Ping.dll
-  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Net.Primitives.dll
-  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Net.Requests.dll
-  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Net.Security.dll
-  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Net.Sockets.dll
-  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Net.WebHeaderCollection.dll
-  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Net.WebSockets.Client.dll
-  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Net.WebSockets.dll
-  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Numerics.dll
-  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.ObjectModel.dll
-  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Reflection.dll
-  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Reflection.Extensions.dll
-  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Reflection.Primitives.dll
-  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Resources.Reader.dll
-  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Resources.ResourceManager.dll
-  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Resources.Writer.dll
-  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Runtime.CompilerServices.VisualC.dll
-  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Runtime.dll
-  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Runtime.Extensions.dll
-  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Runtime.Handles.dll
-  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Runtime.InteropServices.dll
-  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Runtime.InteropServices.RuntimeInformation.dll
-  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Runtime.Numerics.dll
-  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Runtime.Serialization.dll
-  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Runtime.Serialization.Formatters.dll
-  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Runtime.Serialization.Json.dll
-  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Runtime.Serialization.Primitives.dll
-  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Runtime.Serialization.Xml.dll
-  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Security.Claims.dll
-  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Security.Cryptography.Algorithms.dll
-  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Security.Cryptography.Csp.dll
-  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Security.Cryptography.Encoding.dll
-  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Security.Cryptography.Primitives.dll
-  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Security.Cryptography.X509Certificates.dll
-  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Security.Principal.dll
-  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Security.SecureString.dll
-  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.ServiceModel.Web.dll
-  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Text.Encoding.dll
-  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Text.Encoding.Extensions.dll
-  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Text.RegularExpressions.dll
-  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Threading.dll
-  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Threading.Overlapped.dll
-  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Threading.Tasks.dll
-  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Threading.Tasks.Parallel.dll
-  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Threading.Thread.dll
-  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Threading.ThreadPool.dll
-  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Threading.Timer.dll
-  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Transactions.dll
-  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.ValueTuple.dll
-  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Web.dll
-  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Windows.dll
-  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Xml.dll
-  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Xml.Linq.dll
-  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Xml.ReaderWriter.dll
-  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Xml.Serialization.dll
-  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Xml.XDocument.dll
-  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Xml.XmlDocument.dll
-  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Xml.XmlSerializer.dll
-  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Xml.XPath.dll
-  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Xml.XPath.XDocument.dll
-  sources:
-  - Strings.resx
-",
-#else
-                @"netstandard2.0:
-  constants:
-  - DEBUG
-  - NETSTANDARD
-  - NETSTANDARD2_0
-  - TRACE
-  outputs:
-  - ProjectA.deps.json
-  - ProjectA.dll
-  - ProjectA.pdb
-  references:
-  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/Microsoft.Win32.Primitives.dll
-  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/mscorlib.dll
-  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/netstandard.dll
-  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.AppContext.dll
-  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Collections.Concurrent.dll
-  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Collections.dll
-  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Collections.NonGeneric.dll
-  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Collections.Specialized.dll
-  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.ComponentModel.Composition.dll
-  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.ComponentModel.dll
-  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.ComponentModel.EventBasedAsync.dll
-  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.ComponentModel.Primitives.dll
-  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.ComponentModel.TypeConverter.dll
-  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Console.dll
-  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Core.dll
-  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Data.Common.dll
-  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Data.dll
-  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Diagnostics.Contracts.dll
-  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Diagnostics.Debug.dll
-  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Diagnostics.FileVersionInfo.dll
-  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Diagnostics.Process.dll
-  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Diagnostics.StackTrace.dll
-  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Diagnostics.TextWriterTraceListener.dll
-  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Diagnostics.Tools.dll
-  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Diagnostics.TraceSource.dll
-  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Diagnostics.Tracing.dll
-  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.dll
-  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Drawing.dll
-  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Drawing.Primitives.dll
-  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Dynamic.Runtime.dll
-  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Globalization.Calendars.dll
-  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Globalization.dll
-  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Globalization.Extensions.dll
-  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.IO.Compression.dll
-  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.IO.Compression.FileSystem.dll
-  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.IO.Compression.ZipFile.dll
-  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.IO.dll
-  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.IO.FileSystem.dll
-  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.IO.FileSystem.DriveInfo.dll
-  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.IO.FileSystem.Primitives.dll
-  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.IO.FileSystem.Watcher.dll
-  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.IO.IsolatedStorage.dll
-  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.IO.MemoryMappedFiles.dll
-  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.IO.Pipes.dll
-  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.IO.UnmanagedMemoryStream.dll
-  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Linq.dll
-  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Linq.Expressions.dll
-  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Linq.Parallel.dll
-  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Linq.Queryable.dll
-  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Net.dll
-  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Net.Http.dll
-  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Net.NameResolution.dll
-  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Net.NetworkInformation.dll
-  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Net.Ping.dll
-  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Net.Primitives.dll
-  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Net.Requests.dll
-  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Net.Security.dll
-  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Net.Sockets.dll
-  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Net.WebHeaderCollection.dll
-  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Net.WebSockets.Client.dll
-  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Net.WebSockets.dll
-  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Numerics.dll
-  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.ObjectModel.dll
-  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Reflection.dll
-  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Reflection.Extensions.dll
-  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Reflection.Primitives.dll
-  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Resources.Reader.dll
-  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Resources.ResourceManager.dll
-  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Resources.Writer.dll
-  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Runtime.CompilerServices.VisualC.dll
-  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Runtime.dll
-  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Runtime.Extensions.dll
-  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Runtime.Handles.dll
-  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Runtime.InteropServices.dll
-  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Runtime.InteropServices.RuntimeInformation.dll
-  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Runtime.Numerics.dll
-  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Runtime.Serialization.dll
-  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Runtime.Serialization.Formatters.dll
-  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Runtime.Serialization.Json.dll
-  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Runtime.Serialization.Primitives.dll
-  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Runtime.Serialization.Xml.dll
-  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Security.Claims.dll
-  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Security.Cryptography.Algorithms.dll
-  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Security.Cryptography.Csp.dll
-  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Security.Cryptography.Encoding.dll
-  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Security.Cryptography.Primitives.dll
-  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Security.Cryptography.X509Certificates.dll
-  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Security.Principal.dll
-  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Security.SecureString.dll
-  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.ServiceModel.Web.dll
-  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Text.Encoding.dll
-  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Text.Encoding.Extensions.dll
-  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Text.RegularExpressions.dll
-  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Threading.dll
-  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Threading.Overlapped.dll
-  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Threading.Tasks.dll
-  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Threading.Tasks.Parallel.dll
-  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Threading.Thread.dll
-  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Threading.ThreadPool.dll
-  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Threading.Timer.dll
-  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Transactions.dll
-  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.ValueTuple.dll
-  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Web.dll
-  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Windows.dll
-  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Xml.dll
-  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Xml.Linq.dll
-  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Xml.ReaderWriter.dll
-  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Xml.Serialization.dll
-  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Xml.XDocument.dll
-  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Xml.XmlDocument.dll
-  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Xml.XmlSerializer.dll
-  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Xml.XPath.dll
-  - {NuGetPackageRoot}/netstandard.library/2.0.3/build/netstandard2.0/ref/System.Xml.XPath.XDocument.dll
-  sources:
-  - Strings.resx
-",
-#endif
-                StringCompareShould.IgnoreLineEndings);
+            File.ReadAllText(buildSummaryFilePath).ShouldBe(expected, StringCompareShould.IgnoreLineEndings);
         }
 
         [Fact]
         public void NuGetPackageInAllOutputs()
         {
+#if NETCOREAPP3_1
+            const string expected = @"all:
+  outputs:
+  - ProjectA.1.0.0.nupkg
+netstandard1.0:
+  constants:
+  - DEBUG
+  - NETSTANDARD
+  - NETSTANDARD1_0
+  - TRACE
+  outputs:
+  - ProjectA.deps.json
+  - ProjectA.dll
+  - ProjectA.pdb
+  references:
+  - {NuGetPackageRoot}/system.collections/4.3.0/ref/netstandard1.0/System.Collections.dll
+  - {NuGetPackageRoot}/system.diagnostics.debug/4.3.0/ref/netstandard1.0/System.Diagnostics.Debug.dll
+  - {NuGetPackageRoot}/system.diagnostics.tools/4.3.0/ref/netstandard1.0/System.Diagnostics.Tools.dll
+  - {NuGetPackageRoot}/system.globalization/4.3.0/ref/netstandard1.0/System.Globalization.dll
+  - {NuGetPackageRoot}/system.io/4.3.0/ref/netstandard1.0/System.IO.dll
+  - {NuGetPackageRoot}/system.linq.expressions/4.3.0/ref/netstandard1.0/System.Linq.Expressions.dll
+  - {NuGetPackageRoot}/system.linq/4.3.0/ref/netstandard1.0/System.Linq.dll
+  - {NuGetPackageRoot}/system.net.primitives/4.3.0/ref/netstandard1.0/System.Net.Primitives.dll
+  - {NuGetPackageRoot}/system.objectmodel/4.3.0/ref/netstandard1.0/System.ObjectModel.dll
+  - {NuGetPackageRoot}/system.reflection.extensions/4.3.0/ref/netstandard1.0/System.Reflection.Extensions.dll
+  - {NuGetPackageRoot}/system.reflection.primitives/4.3.0/ref/netstandard1.0/System.Reflection.Primitives.dll
+  - {NuGetPackageRoot}/system.reflection/4.3.0/ref/netstandard1.0/System.Reflection.dll
+  - {NuGetPackageRoot}/system.resources.resourcemanager/4.3.0/ref/netstandard1.0/System.Resources.ResourceManager.dll
+  - {NuGetPackageRoot}/system.runtime.extensions/4.3.0/ref/netstandard1.0/System.Runtime.Extensions.dll
+  - {NuGetPackageRoot}/system.runtime/4.3.0/ref/netstandard1.0/System.Runtime.dll
+  - {NuGetPackageRoot}/system.text.encoding.extensions/4.3.0/ref/netstandard1.0/System.Text.Encoding.Extensions.dll
+  - {NuGetPackageRoot}/system.text.encoding/4.3.0/ref/netstandard1.0/System.Text.Encoding.dll
+  - {NuGetPackageRoot}/system.text.regularexpressions/4.3.0/ref/netstandard1.0/System.Text.RegularExpressions.dll
+  - {NuGetPackageRoot}/system.threading.tasks/4.3.0/ref/netstandard1.0/System.Threading.Tasks.dll
+  - {NuGetPackageRoot}/system.threading/4.3.0/ref/netstandard1.0/System.Threading.dll
+  - {NuGetPackageRoot}/system.xml.readerwriter/4.3.0/ref/netstandard1.0/System.Xml.ReaderWriter.dll
+  - {NuGetPackageRoot}/system.xml.xdocument/4.3.0/ref/netstandard1.0/System.Xml.XDocument.dll
+  sources:
+";
+#else
+            const string expected = @"all:
+  outputs:
+  - ProjectA.1.0.0.nupkg
+netstandard1.0:
+  constants:
+  - DEBUG
+  - NETSTANDARD
+  - NETSTANDARD1_0
+  - NETSTANDARD1_0_OR_GREATER
+  - TRACE
+  outputs:
+  - ProjectA.deps.json
+  - ProjectA.dll
+  - ProjectA.pdb
+  references:
+  - {NuGetPackageRoot}/system.collections/4.3.0/ref/netstandard1.0/System.Collections.dll
+  - {NuGetPackageRoot}/system.diagnostics.debug/4.3.0/ref/netstandard1.0/System.Diagnostics.Debug.dll
+  - {NuGetPackageRoot}/system.diagnostics.tools/4.3.0/ref/netstandard1.0/System.Diagnostics.Tools.dll
+  - {NuGetPackageRoot}/system.globalization/4.3.0/ref/netstandard1.0/System.Globalization.dll
+  - {NuGetPackageRoot}/system.io/4.3.0/ref/netstandard1.0/System.IO.dll
+  - {NuGetPackageRoot}/system.linq.expressions/4.3.0/ref/netstandard1.0/System.Linq.Expressions.dll
+  - {NuGetPackageRoot}/system.linq/4.3.0/ref/netstandard1.0/System.Linq.dll
+  - {NuGetPackageRoot}/system.net.primitives/4.3.0/ref/netstandard1.0/System.Net.Primitives.dll
+  - {NuGetPackageRoot}/system.objectmodel/4.3.0/ref/netstandard1.0/System.ObjectModel.dll
+  - {NuGetPackageRoot}/system.reflection.extensions/4.3.0/ref/netstandard1.0/System.Reflection.Extensions.dll
+  - {NuGetPackageRoot}/system.reflection.primitives/4.3.0/ref/netstandard1.0/System.Reflection.Primitives.dll
+  - {NuGetPackageRoot}/system.reflection/4.3.0/ref/netstandard1.0/System.Reflection.dll
+  - {NuGetPackageRoot}/system.resources.resourcemanager/4.3.0/ref/netstandard1.0/System.Resources.ResourceManager.dll
+  - {NuGetPackageRoot}/system.runtime.extensions/4.3.0/ref/netstandard1.0/System.Runtime.Extensions.dll
+  - {NuGetPackageRoot}/system.runtime/4.3.0/ref/netstandard1.0/System.Runtime.dll
+  - {NuGetPackageRoot}/system.text.encoding.extensions/4.3.0/ref/netstandard1.0/System.Text.Encoding.Extensions.dll
+  - {NuGetPackageRoot}/system.text.encoding/4.3.0/ref/netstandard1.0/System.Text.Encoding.dll
+  - {NuGetPackageRoot}/system.text.regularexpressions/4.3.0/ref/netstandard1.0/System.Text.RegularExpressions.dll
+  - {NuGetPackageRoot}/system.threading.tasks/4.3.0/ref/netstandard1.0/System.Threading.Tasks.dll
+  - {NuGetPackageRoot}/system.threading/4.3.0/ref/netstandard1.0/System.Threading.dll
+  - {NuGetPackageRoot}/system.xml.readerwriter/4.3.0/ref/netstandard1.0/System.Xml.ReaderWriter.dll
+  - {NuGetPackageRoot}/system.xml.xdocument/4.3.0/ref/netstandard1.0/System.Xml.XDocument.dll
+  sources:
+";
+#endif
             CreateSdkStyleProject("netstandard1.0")
                 .Property("GenerateTargetPlatformDefineConstants", bool.FalseString)
                 .Property("GeneratePackageOnBuild", bool.TrueString)
@@ -1226,106 +1310,15 @@ netstandard2.1:
 
             buildSummaryFilePath.ShouldNotBeNullOrEmpty();
 
-            File.ReadAllText(buildSummaryFilePath).ShouldBe(
-#if NETCOREAPP3_1
-                @"all:
-  outputs:
-  - ProjectA.1.0.0.nupkg
-netstandard1.0:
-  constants:
-  - DEBUG
-  - NETSTANDARD
-  - NETSTANDARD1_0
-  - TRACE
-  outputs:
-  - ProjectA.deps.json
-  - ProjectA.dll
-  - ProjectA.pdb
-  references:
-  - {NuGetPackageRoot}/system.collections/4.3.0/ref/netstandard1.0/System.Collections.dll
-  - {NuGetPackageRoot}/system.diagnostics.debug/4.3.0/ref/netstandard1.0/System.Diagnostics.Debug.dll
-  - {NuGetPackageRoot}/system.diagnostics.tools/4.3.0/ref/netstandard1.0/System.Diagnostics.Tools.dll
-  - {NuGetPackageRoot}/system.globalization/4.3.0/ref/netstandard1.0/System.Globalization.dll
-  - {NuGetPackageRoot}/system.io/4.3.0/ref/netstandard1.0/System.IO.dll
-  - {NuGetPackageRoot}/system.linq.expressions/4.3.0/ref/netstandard1.0/System.Linq.Expressions.dll
-  - {NuGetPackageRoot}/system.linq/4.3.0/ref/netstandard1.0/System.Linq.dll
-  - {NuGetPackageRoot}/system.net.primitives/4.3.0/ref/netstandard1.0/System.Net.Primitives.dll
-  - {NuGetPackageRoot}/system.objectmodel/4.3.0/ref/netstandard1.0/System.ObjectModel.dll
-  - {NuGetPackageRoot}/system.reflection.extensions/4.3.0/ref/netstandard1.0/System.Reflection.Extensions.dll
-  - {NuGetPackageRoot}/system.reflection.primitives/4.3.0/ref/netstandard1.0/System.Reflection.Primitives.dll
-  - {NuGetPackageRoot}/system.reflection/4.3.0/ref/netstandard1.0/System.Reflection.dll
-  - {NuGetPackageRoot}/system.resources.resourcemanager/4.3.0/ref/netstandard1.0/System.Resources.ResourceManager.dll
-  - {NuGetPackageRoot}/system.runtime.extensions/4.3.0/ref/netstandard1.0/System.Runtime.Extensions.dll
-  - {NuGetPackageRoot}/system.runtime/4.3.0/ref/netstandard1.0/System.Runtime.dll
-  - {NuGetPackageRoot}/system.text.encoding.extensions/4.3.0/ref/netstandard1.0/System.Text.Encoding.Extensions.dll
-  - {NuGetPackageRoot}/system.text.encoding/4.3.0/ref/netstandard1.0/System.Text.Encoding.dll
-  - {NuGetPackageRoot}/system.text.regularexpressions/4.3.0/ref/netstandard1.0/System.Text.RegularExpressions.dll
-  - {NuGetPackageRoot}/system.threading.tasks/4.3.0/ref/netstandard1.0/System.Threading.Tasks.dll
-  - {NuGetPackageRoot}/system.threading/4.3.0/ref/netstandard1.0/System.Threading.dll
-  - {NuGetPackageRoot}/system.xml.readerwriter/4.3.0/ref/netstandard1.0/System.Xml.ReaderWriter.dll
-  - {NuGetPackageRoot}/system.xml.xdocument/4.3.0/ref/netstandard1.0/System.Xml.XDocument.dll
-  sources:
-",
-#else
-                @"all:
-  outputs:
-  - ProjectA.1.0.0.nupkg
-netstandard1.0:
-  constants:
-  - DEBUG
-  - NETSTANDARD
-  - NETSTANDARD1_0
-  - NETSTANDARD1_0_OR_GREATER
-  - TRACE
-  outputs:
-  - ProjectA.deps.json
-  - ProjectA.dll
-  - ProjectA.pdb
-  references:
-  - {NuGetPackageRoot}/system.collections/4.3.0/ref/netstandard1.0/System.Collections.dll
-  - {NuGetPackageRoot}/system.diagnostics.debug/4.3.0/ref/netstandard1.0/System.Diagnostics.Debug.dll
-  - {NuGetPackageRoot}/system.diagnostics.tools/4.3.0/ref/netstandard1.0/System.Diagnostics.Tools.dll
-  - {NuGetPackageRoot}/system.globalization/4.3.0/ref/netstandard1.0/System.Globalization.dll
-  - {NuGetPackageRoot}/system.io/4.3.0/ref/netstandard1.0/System.IO.dll
-  - {NuGetPackageRoot}/system.linq.expressions/4.3.0/ref/netstandard1.0/System.Linq.Expressions.dll
-  - {NuGetPackageRoot}/system.linq/4.3.0/ref/netstandard1.0/System.Linq.dll
-  - {NuGetPackageRoot}/system.net.primitives/4.3.0/ref/netstandard1.0/System.Net.Primitives.dll
-  - {NuGetPackageRoot}/system.objectmodel/4.3.0/ref/netstandard1.0/System.ObjectModel.dll
-  - {NuGetPackageRoot}/system.reflection.extensions/4.3.0/ref/netstandard1.0/System.Reflection.Extensions.dll
-  - {NuGetPackageRoot}/system.reflection.primitives/4.3.0/ref/netstandard1.0/System.Reflection.Primitives.dll
-  - {NuGetPackageRoot}/system.reflection/4.3.0/ref/netstandard1.0/System.Reflection.dll
-  - {NuGetPackageRoot}/system.resources.resourcemanager/4.3.0/ref/netstandard1.0/System.Resources.ResourceManager.dll
-  - {NuGetPackageRoot}/system.runtime.extensions/4.3.0/ref/netstandard1.0/System.Runtime.Extensions.dll
-  - {NuGetPackageRoot}/system.runtime/4.3.0/ref/netstandard1.0/System.Runtime.dll
-  - {NuGetPackageRoot}/system.text.encoding.extensions/4.3.0/ref/netstandard1.0/System.Text.Encoding.Extensions.dll
-  - {NuGetPackageRoot}/system.text.encoding/4.3.0/ref/netstandard1.0/System.Text.Encoding.dll
-  - {NuGetPackageRoot}/system.text.regularexpressions/4.3.0/ref/netstandard1.0/System.Text.RegularExpressions.dll
-  - {NuGetPackageRoot}/system.threading.tasks/4.3.0/ref/netstandard1.0/System.Threading.Tasks.dll
-  - {NuGetPackageRoot}/system.threading/4.3.0/ref/netstandard1.0/System.Threading.dll
-  - {NuGetPackageRoot}/system.xml.readerwriter/4.3.0/ref/netstandard1.0/System.Xml.ReaderWriter.dll
-  - {NuGetPackageRoot}/system.xml.xdocument/4.3.0/ref/netstandard1.0/System.Xml.XDocument.dll
-  sources:
-",
-#endif
-                StringCompareShould.IgnoreLineEndings);
+            File.ReadAllText(buildSummaryFilePath).ShouldBe(expected, StringCompareShould.IgnoreLineEndings);
         }
 
 #if NETFRAMEWORK
+
         [Fact]
         public void LegacyProject()
         {
-            CreateLegacyProject("net472", "v4.7.2")
-                .ItemCompile("Class1.cs")
-                .Save(GetTempProjectFile("ProjectA", "Class1.cs"))
-                .TryBuild(restore: true, out bool result, out BuildOutput buildOutput)
-                .TryGetPropertyValue("BuildSummaryFilePath", out string buildSummaryFilePath);
-
-            result.ShouldBeTrue(buildOutput.GetConsoleLog());
-
-            buildSummaryFilePath.ShouldNotBeNullOrEmpty();
-
-            File.ReadAllText(buildSummaryFilePath).ShouldBe(
-                @"net472:
+            const string expected = @"net472:
   constants:
   - DEBUG
   - TRACE
@@ -1344,9 +1337,21 @@ netstandard1.0:
   - {FrameworkAssemblies}/System.Xml.Linq.dll
   sources:
   - Class1.cs
-",
-                StringCompareShould.IgnoreLineEndings);
+";
+
+            CreateLegacyProject("net472", "v4.7.2")
+                .ItemCompile("Class1.cs")
+                .Save(GetTempProjectFile("ProjectA", "Class1.cs"))
+                .TryBuild(restore: true, out bool result, out BuildOutput buildOutput)
+                .TryGetPropertyValue("BuildSummaryFilePath", out string buildSummaryFilePath);
+
+            result.ShouldBeTrue(buildOutput.GetConsoleLog());
+
+            buildSummaryFilePath.ShouldNotBeNullOrEmpty();
+
+            File.ReadAllText(buildSummaryFilePath).ShouldBe(expected, StringCompareShould.IgnoreLineEndings);
         }
+
 #endif
 
         private ProjectCreator CreateSdkStyleProject(params string[] targetFrameworks)
@@ -1369,7 +1374,7 @@ netstandard1.0:
         {
             ProjectCreator
                 .Create(Path.Combine(TestRootPath, "Directory.Build.props"))
-                .Property("MSBuildSummaryFilesTaskAssembly", TaskAssemblyFullPath)
+                .Property("MSBuildSummaryFilesTaskAssemblyPath", TaskAssemblyFullPath)
                 .Import(Path.Combine(Environment.CurrentDirectory, "build", "MSBuildSummaryFiles.Tasks.props"), condition: targetFrameworks.Length > 1 ? "'$(TargetFramework)' != ''" : null)
                 .Import(Path.Combine(Environment.CurrentDirectory, "buildMultiTargeting", "MSBuildSummaryFiles.Tasks.props"), condition: targetFrameworks.Length > 1 ? "'$(TargetFramework)' == ''" : bool.FalseString)
                 .Save();
