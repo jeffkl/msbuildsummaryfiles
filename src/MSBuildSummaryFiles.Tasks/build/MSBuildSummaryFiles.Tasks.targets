@@ -64,8 +64,8 @@
     </ItemGroup>
 
     <ItemGroup Condition="'$(GeneratePackageOnBuild)' == 'true' And '$(ContinuePackingAfterGeneratingNuspec)' != 'false'">
-      <_BuildOutputs Include="$(PackageOutputAbsolutePath)$(PackageId).{PackageVersion}.nupkg" />
-      <_BuildOutputs Include="$(PackageOutputAbsolutePath)$(PackageId).{PackageVersion}.snupkg"
+      <_BuildOutputs Include="$(PackageOutputAbsolutePath)$(PackageId).(PackageVersion).nupkg" />
+      <_BuildOutputs Include="$(PackageOutputAbsolutePath)$(PackageId).(PackageVersion).snupkg"
                      Condition="'$(SymbolPackageFormat)' == 'nupkg' "/>
     </ItemGroup>
 

@@ -96,8 +96,8 @@ namespace MSBuildSummaryFiles.Tasks.UnitTests
   - ProjectA.dll
   - ProjectA.pdb
   references:
-  - {FrameworkAssembliesRoot}/Microsoft.CSharp.dll
-  - {NetCoreTargetingPackRoot}/Microsoft.NETCore.App.Ref/net472/Microsoft.CSharp.dll
+  - (FrameworkAssembliesRoot)/Microsoft.CSharp.dll
+  - (NetCoreTargetingPackRoot)/Microsoft.NETCore.App.Ref/net472/Microsoft.CSharp.dll
   sources:
   - ../Shared/SharedClass.cs
   - Class1.cs
@@ -266,7 +266,7 @@ namespace MSBuildSummaryFiles.Tasks.UnitTests
   - ProjectA.dll
   - ProjectA.pdb
   references:
-  - {NuGetPackageRoot}/package.a/1.0.0/lib/net472/package.a.dll
+  - (NuGetPackageRoot)/package.a/1.0.0/lib/net472/package.a.dll
   sources:
   - Class1.cs
 ",
