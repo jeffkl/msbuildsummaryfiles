@@ -117,7 +117,7 @@ namespace MSBuildSummaryFiles.Tasks
 
                     string placeHolder = name.StartsWith("#")
                         ? string.Empty
-                        : $"{{{name}}}/";
+                        : $"({name})/";
 
                     return fullPath.Replace(path, placeHolder).Replace(@"\", "/").Trim('/');
                 }
