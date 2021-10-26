@@ -1,6 +1,6 @@
 <Project>
   <PropertyGroup>
-    <MSBuildPackageVersion Condition="'$(TargetFramework)' == 'net46'">15.9.20</MSBuildPackageVersion>
+    <MSBuildPackageVersion Condition="'$(TargetFramework)' == 'net46'">16.11.0</MSBuildPackageVersion>
     <MSBuildPackageVersion Condition="'$(MSBuildPackageVersion)' == ''">16.11.0</MSBuildPackageVersion>
   </PropertyGroup>
   <ItemGroup>
