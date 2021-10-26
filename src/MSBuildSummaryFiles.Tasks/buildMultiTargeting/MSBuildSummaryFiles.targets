@@ -1,4 +1,9 @@
-﻿<Project>
+﻿<!--
+Copyright (c) Microsoft Corporation.
+
+Licensed under the MIT license.
+-->
+<Project>
   <Import Project="..\build\$(MSBuildThisFile)"/>
 
   <Target Name="GetTargetFrameworkSummaryFiles"

@@ -1,4 +1,9 @@
-﻿<Project>
+﻿<!--
+Copyright (c) Microsoft Corporation.
+
+Licensed under the MIT license.
+-->
+<Project>
   <PropertyGroup>
     <BuildSummaryFilePath Condition="'$(BuildSummaryFilePath)' == ''">$([System.IO.Path]::Combine($(MSBuildProjectDirectory), 'build.summary.yml'))</BuildSummaryFilePath>
   </PropertyGroup>
