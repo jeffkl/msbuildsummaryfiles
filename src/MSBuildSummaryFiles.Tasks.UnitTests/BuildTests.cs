@@ -1375,14 +1375,14 @@ netstandard1.0:
             ProjectCreator
                 .Create(Path.Combine(TestRootPath, "Directory.Build.props"))
                 .Property("MSBuildSummaryFilesTaskAssemblyPath", TaskAssemblyFullPath)
-                .Import(Path.Combine(Environment.CurrentDirectory, "build", "MSBuildSummaryFiles.Tasks.props"), condition: targetFrameworks.Length > 1 ? "'$(TargetFramework)' != ''" : null)
-                .Import(Path.Combine(Environment.CurrentDirectory, "buildMultiTargeting", "MSBuildSummaryFiles.Tasks.props"), condition: targetFrameworks.Length > 1 ? "'$(TargetFramework)' == ''" : bool.FalseString)
+                .Import(Path.Combine(Environment.CurrentDirectory, "build", "MSBuildSummaryFiles.props"), condition: targetFrameworks.Length > 1 ? "'$(TargetFramework)' != ''" : null)
+                .Import(Path.Combine(Environment.CurrentDirectory, "buildMultiTargeting", "MSBuildSummaryFiles.props"), condition: targetFrameworks.Length > 1 ? "'$(TargetFramework)' == ''" : bool.FalseString)
                 .Save();
 
             ProjectCreator
                 .Create(Path.Combine(TestRootPath, "Directory.Build.targets"))
-                .Import(Path.Combine(Environment.CurrentDirectory, "build", "MSBuildSummaryFiles.Tasks.targets"), condition: targetFrameworks.Length > 1 ? "'$(TargetFramework)' != ''" : null)
-                .Import(Path.Combine(Environment.CurrentDirectory, "buildMultiTargeting", "MSBuildSummaryFiles.Tasks.targets"), condition: targetFrameworks.Length > 1 ? "'$(TargetFramework)' == ''" : bool.FalseString)
+                .Import(Path.Combine(Environment.CurrentDirectory, "build", "MSBuildSummaryFiles.targets"), condition: targetFrameworks.Length > 1 ? "'$(TargetFramework)' != ''" : null)
+                .Import(Path.Combine(Environment.CurrentDirectory, "buildMultiTargeting", "MSBuildSummaryFiles.targets"), condition: targetFrameworks.Length > 1 ? "'$(TargetFramework)' == ''" : bool.FalseString)
                 .Save();
         }
     }
