@@ -1,4 +1,9 @@
-﻿<Project>
+﻿<!--
+Copyright (c) Microsoft Corporation.
+
+Licensed under the MIT license.
+-->
+<Project>
   <PropertyGroup Condition="'$(MSBuildSummaryFilesTaskAssemblyPath)' == ''">
     <MSBuildSummaryFilesTaskAssemblyPath Condition="'$(MSBuildRuntimeType)' == 'Full'">$(MSBuildThisFileDirectory)net472\MSBuildSummaryFiles.Tasks.dll</MSBuildSummaryFilesTaskAssemblyPath>
     <MSBuildSummaryFilesTaskAssemblyPath Condition="'$(MSBuildRuntimeType)' == 'Core'">$(MSBuildThisFileDirectory)netstandard2.0\MSBuildSummaryFiles.Tasks.dll</MSBuildSummaryFilesTaskAssemblyPath>
