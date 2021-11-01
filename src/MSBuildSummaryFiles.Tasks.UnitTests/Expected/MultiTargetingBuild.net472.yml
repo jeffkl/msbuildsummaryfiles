@@ -1,0 +1,73 @@
+﻿net46:
+  constants:
+  - DEBUG
+  - NET20_OR_GREATER
+  - NET30_OR_GREATER
+  - NET35_OR_GREATER
+  - NET40_OR_GREATER
+  - NET45_OR_GREATER
+  - NET451_OR_GREATER
+  - NET452_OR_GREATER
+  - NET46
+  - NET46_OR_GREATER
+  - NETFRAMEWORK
+  - TRACE
+  outputs:
+  - ProjectA.dll
+  - ProjectA.pdb
+  references:
+  - (FrameworkAssemblies)/mscorlib.dll
+  - (FrameworkAssemblies)/System.Core.dll
+  - (FrameworkAssemblies)/System.Data.dll
+  - (FrameworkAssemblies)/System.dll
+  - (FrameworkAssemblies)/System.Drawing.dll
+  - (FrameworkAssemblies)/System.IO.Compression.FileSystem.dll
+  - (FrameworkAssemblies)/System.Numerics.dll
+  - (FrameworkAssemblies)/System.Runtime.Serialization.dll
+  - (FrameworkAssemblies)/System.Xml.dll
+  - (FrameworkAssemblies)/System.Xml.Linq.dll
+  sources:
+  - (IntermediateOutputPath)/.NETFramework,Version=v4.6.AssemblyAttributes.cs
+  - (IntermediateOutputPath)/ProjectA.AssemblyInfo.cs
+  - AAA.cs
+  - BBB.cs
+  - strings.resx
+net472:
+  constants:
+  - DEBUG
+  - NET20_OR_GREATER
+  - NET30_OR_GREATER
+  - NET35_OR_GREATER
+  - NET40_OR_GREATER
+  - NET45_OR_GREATER
+  - NET451_OR_GREATER
+  - NET452_OR_GREATER
+  - NET46_OR_GREATER
+  - NET461_OR_GREATER
+  - NET462_OR_GREATER
+  - NET47_OR_GREATER
+  - NET471_OR_GREATER
+  - NET472
+  - NET472_OR_GREATER
+  - NETFRAMEWORK
+  - TRACE
+  outputs:
+  - ProjectA.dll
+  - ProjectA.pdb
+  references:
+  - (FrameworkAssemblies)/mscorlib.dll
+  - (FrameworkAssemblies)/System.Core.dll
+  - (FrameworkAssemblies)/System.Data.dll
+  - (FrameworkAssemblies)/System.dll
+  - (FrameworkAssemblies)/System.Drawing.dll
+  - (FrameworkAssemblies)/System.IO.Compression.FileSystem.dll
+  - (FrameworkAssemblies)/System.Numerics.dll
+  - (FrameworkAssemblies)/System.Runtime.Serialization.dll
+  - (FrameworkAssemblies)/System.Xml.dll
+  - (FrameworkAssemblies)/System.Xml.Linq.dll
+  sources:
+  - (IntermediateOutputPath)/.NETFramework,Version=v4.7.2.AssemblyAttributes.cs
+  - (IntermediateOutputPath)/ProjectA.AssemblyInfo.cs
+  - AAA.cs
+  - BBB.cs
+  - strings.resx

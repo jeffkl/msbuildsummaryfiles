@@ -3,6 +3,7 @@
 // Licensed under the MIT license.
 
 using Microsoft.Build.Framework;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
@@ -26,22 +27,34 @@ namespace MSBuildSummaryFiles.Tasks
         public string FilePath { get; set; }
 
         /// <summary>
-        /// Gets or sets an array of <see cref="ITaskItem" /> items representing file writes.
+        /// Gets or sets an array of <see cref="ITaskItem" /> items representing folder roots for output files.
         /// </summary>
         [Required]
-        public ITaskItem[] FileWrites { get; set; }
+        public ITaskItem[] OutputFolderRoots { get; set; }
 
         /// <summary>
-        /// Gets or sets an array of <see cref="ITaskItem" /> items representing folder roots.
+        /// Gets or sets an array of <see cref="ITaskItem" /> items representing output files.
         /// </summary>
         [Required]
-        public ITaskItem[] FolderRoots { get; set; }
+        public ITaskItem[] Outputs { get; set; }
+
+        /// <summary>
+        /// Gets or sets an array of <see cref="ITaskItem" /> items representing folder roots for assembly reference files.
+        /// </summary>
+        [Required]
+        public ITaskItem[] ReferenceFolderRoots { get; set; }
 
         /// <summary>
         /// Gets or sets an array of <see cref="ITaskItem" /> items representing assembly references.
         /// </summary>
         [Required]
         public ITaskItem[] References { get; set; }
+
+        /// <summary>
+        /// Gets or sets an array of <see cref="ITaskItem" /> items representing folder roots for source files.
+        /// </summary>
+        [Required]
+        public ITaskItem[] SourceFolderRoots { get; set; }
 
         /// <summary>
         /// Gets or sets an array of <see cref="ITaskItem" /> items representing source files.
@@ -58,6 +71,13 @@ namespace MSBuildSummaryFiles.Tasks
         /// <inheritdoc />
         public override bool Execute()
         {
+            if (CountItemsWithAllowRelative(SourceFolderRoots) > 1 || CountItemsWithAllowRelative(OutputFolderRoots) > 1 || CountItemsWithAllowRelative(ReferenceFolderRoots) > 1)
+            {
+                Log.LogErrorFromResources(nameof(Strings.DuplicateAllowRelative));
+
+                return false;
+            }
+
             FileInfo fileInfo = new FileInfo(FilePath);
 
             fileInfo.Directory!.Create();
@@ -78,9 +98,9 @@ namespace MSBuildSummaryFiles.Tasks
             }
 
             writer.WriteLine("  outputs:");
-            if (FileWrites?.Length > 0)
+            if (Outputs?.Length > 0)
             {
-                foreach (string format in FileWrites.GetNormalizedPaths(FolderRoots).OrderBy(i => i))
+                foreach (string format in Outputs.GetNormalizedPaths(OutputFolderRoots).OrderBy(i => i))
                 {
                     writer.Write("  - ");
                     writer.WriteLine(format);
@@ -90,7 +110,7 @@ namespace MSBuildSummaryFiles.Tasks
             writer.WriteLine("  references:");
             if (References?.Length > 0)
             {
-                foreach (string normalizedPath in References.GetNormalizedPaths(FolderRoots).OrderBy(i => i))
+                foreach (string normalizedPath in References.GetNormalizedPaths(ReferenceFolderRoots).OrderBy(i => i))
                 {
                     writer.Write("  - ");
                     writer.WriteLine(normalizedPath);
@@ -100,7 +120,7 @@ namespace MSBuildSummaryFiles.Tasks
             writer.WriteLine("  sources:");
             if (Sources?.Length > 0)
             {
-                foreach (string normalizedPath in Sources.GetNormalizedPaths(FolderRoots).OrderBy(i => i))
+                foreach (string normalizedPath in Sources.GetNormalizedPaths(SourceFolderRoots).OrderBy(i => i))
                 {
                     writer.Write("  - ");
                     writer.WriteLine(normalizedPath);
@@ -108,6 +128,16 @@ namespace MSBuildSummaryFiles.Tasks
             }
 
             return base.Execute();
+        }
+
+        private int CountItemsWithAllowRelative(IEnumerable<ITaskItem> items)
+        {
+            if (items == null)
+            {
+                return 0;
+            }
+
+            return items.Count(i => string.Equals(i.GetMetadata("AllowRelative"), bool.TrueString));
         }
     }
 }

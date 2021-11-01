@@ -16,22 +16,6 @@ namespace MSBuildSummaryFiles.Tasks
     internal static class ExtensionMethods
     {
         /// <summary>
-        /// Returns the paths in the specified folder roots which are treated as absolute.
-        /// </summary>
-        /// <param name="folderRoots">A array of <see cref="ITaskItem" /> items containing folder roots.</param>
-        /// <returns>An <see cref="IEnumerable{T}" /> of folders which are treated as absolute.</returns>
-        public static IEnumerable<ITaskItem> AbsolutePathRoots(this ITaskItem[] folderRoots)
-        {
-            foreach (ITaskItem folderRoot in folderRoots)
-            {
-                if (!string.Equals(bool.TrueString, folderRoot.GetMetadata("AllowRelative"), StringComparison.OrdinalIgnoreCase))
-                {
-                    yield return folderRoot;
-                }
-            }
-        }
-
-        /// <summary>
         /// Ensures the specified path has a trailing slash.
         /// </summary>
         /// <param name="path">The path to analyze.</param>
@@ -98,7 +82,7 @@ namespace MSBuildSummaryFiles.Tasks
             string fullPath = taskItem.GetMetadata("FullPath").FixPath();
 
             // Need to exhaust absolute path options before try relative path.
-            foreach (ITaskItem folderRoot in folderRoots.AbsolutePathRoots())
+            foreach (ITaskItem folderRoot in folderRoots)
             {
                 string name = folderRoot.ItemSpec;
                 string path = folderRoot.GetMetadata("Path").FixPath().EnsureTrailingSlash();
@@ -106,6 +90,11 @@ namespace MSBuildSummaryFiles.Tasks
                 if (string.IsNullOrWhiteSpace(path))
                 {
                     continue;
+                }
+
+                if (string.Equals(folderRoot.GetMetadata("AllowRelative"), bool.TrueString, StringComparison.OrdinalIgnoreCase))
+                {
+                    return fullPath.ToRelativePath(path).Replace(@"\", "/").Trim('/');
                 }
 
                 if (fullPath.StartsWith(path))
@@ -123,38 +112,7 @@ namespace MSBuildSummaryFiles.Tasks
                 }
             }
 
-            List<ITaskItem> relativePathRoots = folderRoots.RelativePathRoots().ToList();
-
-            if (relativePathRoots.Count > 1)
-            {
-                throw new InvalidOperationException("No more than 1 AllowRelative tag is permitted for roots.");
-            }
-
-            // Only one AllowRelative tag is considered.
-            foreach (ITaskItem folderRoot in relativePathRoots)
-            {
-                string path = folderRoot.GetMetadata("Path").EnsureTrailingSlash().FixPath();
-                string relativePath = fullPath.ToRelativePath(path).Replace(@"\", "/").Trim('/');
-                return relativePath;
-            }
-
             return fullPath;
-        }
-
-        /// <summary>
-        /// Returns the paths in the specified folder roots which are treated as relative.
-        /// </summary>
-        /// <param name="folderRoots">A array of <see cref="ITaskItem" /> items containing folder roots.</param>
-        /// <returns>An <see cref="IEnumerable{T}" /> of folders which are treated as relative.</returns>
-        public static IEnumerable<ITaskItem> RelativePathRoots(this ITaskItem[] folderRoots)
-        {
-            foreach (ITaskItem folderRoot in folderRoots)
-            {
-                if (string.Equals(bool.TrueString, folderRoot.GetMetadata("AllowRelative"), StringComparison.OrdinalIgnoreCase))
-                {
-                    yield return folderRoot;
-                }
-            }
         }
 
         /// <summary>

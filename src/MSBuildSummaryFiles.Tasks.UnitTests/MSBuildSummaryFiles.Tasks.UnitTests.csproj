@@ -19,4 +19,7 @@
     <Content Include="..\MSBuildSummaryFiles.Tasks\buildMultiTargeting\**" Link="buildMultiTargeting\%(RecursiveDir)%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
     <Content Include="xunit.runner.json" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="Expected\*.yml" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
 </Project>

@@ -11,6 +11,16 @@ namespace MSBuildSummaryFiles.Tasks.UnitTests
 {
     public abstract class TestBase : MSBuildTestBase
     {
+#if NETFRAMEWORK
+        protected const string CurrentTargetFramework = "net472";
+#elif NET5_0
+        protected const string CurrentTargetFramework = "net5.0";
+#elif NET6_0
+        protected const string CurrentTargetFramework = "net6.0";
+#else
+        protected const string CurrentTargetFramework = "netcoreapp3.1";
+#endif
+
         private static readonly Lazy<string> TaskAssemblyFullPathLazy = new Lazy<string>(() => typeof(WriteBuildSummaryFile).Assembly.Location);
 
         private readonly string _testRootPath = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());

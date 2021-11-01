@@ -1,0 +1,38 @@
+﻿all:
+  outputs:
+  - ProjectA.(PackageVersion).nupkg
+netstandard1.0:
+  constants:
+  - DEBUG
+  - NETSTANDARD
+  - NETSTANDARD1_0
+  - NETSTANDARD1_0_OR_GREATER
+  - TRACE
+  outputs:
+  - ProjectA.deps.json
+  - ProjectA.dll
+  - ProjectA.pdb
+  references:
+  - (NuGetPackageRoot)/system.collections/4.3.0/ref/netstandard1.0/System.Collections.dll
+  - (NuGetPackageRoot)/system.diagnostics.debug/4.3.0/ref/netstandard1.0/System.Diagnostics.Debug.dll
+  - (NuGetPackageRoot)/system.diagnostics.tools/4.3.0/ref/netstandard1.0/System.Diagnostics.Tools.dll
+  - (NuGetPackageRoot)/system.globalization/4.3.0/ref/netstandard1.0/System.Globalization.dll
+  - (NuGetPackageRoot)/system.io/4.3.0/ref/netstandard1.0/System.IO.dll
+  - (NuGetPackageRoot)/system.linq.expressions/4.3.0/ref/netstandard1.0/System.Linq.Expressions.dll
+  - (NuGetPackageRoot)/system.linq/4.3.0/ref/netstandard1.0/System.Linq.dll
+  - (NuGetPackageRoot)/system.net.primitives/4.3.0/ref/netstandard1.0/System.Net.Primitives.dll
+  - (NuGetPackageRoot)/system.objectmodel/4.3.0/ref/netstandard1.0/System.ObjectModel.dll
+  - (NuGetPackageRoot)/system.reflection.extensions/4.3.0/ref/netstandard1.0/System.Reflection.Extensions.dll
+  - (NuGetPackageRoot)/system.reflection.primitives/4.3.0/ref/netstandard1.0/System.Reflection.Primitives.dll
+  - (NuGetPackageRoot)/system.reflection/4.3.0/ref/netstandard1.0/System.Reflection.dll
+  - (NuGetPackageRoot)/system.resources.resourcemanager/4.3.0/ref/netstandard1.0/System.Resources.ResourceManager.dll
+  - (NuGetPackageRoot)/system.runtime.extensions/4.3.0/ref/netstandard1.0/System.Runtime.Extensions.dll
+  - (NuGetPackageRoot)/system.runtime/4.3.0/ref/netstandard1.0/System.Runtime.dll
+  - (NuGetPackageRoot)/system.text.encoding.extensions/4.3.0/ref/netstandard1.0/System.Text.Encoding.Extensions.dll
+  - (NuGetPackageRoot)/system.text.encoding/4.3.0/ref/netstandard1.0/System.Text.Encoding.dll
+  - (NuGetPackageRoot)/system.text.regularexpressions/4.3.0/ref/netstandard1.0/System.Text.RegularExpressions.dll
+  - (NuGetPackageRoot)/system.threading.tasks/4.3.0/ref/netstandard1.0/System.Threading.Tasks.dll
+  - (NuGetPackageRoot)/system.threading/4.3.0/ref/netstandard1.0/System.Threading.dll
+  - (NuGetPackageRoot)/system.xml.readerwriter/4.3.0/ref/netstandard1.0/System.Xml.ReaderWriter.dll
+  - (NuGetPackageRoot)/system.xml.xdocument/4.3.0/ref/netstandard1.0/System.Xml.XDocument.dll
+  sources:
