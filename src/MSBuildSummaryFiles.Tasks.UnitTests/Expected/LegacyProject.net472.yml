@@ -1,0 +1,20 @@
+﻿net472:
+  constants:
+  - DEBUG
+  - TRACE
+  outputs:
+  - ClassLibrary.dll
+  - ClassLibrary.pdb
+  references:
+  - (FrameworkAssemblies)/Microsoft.CSharp.dll
+  - (FrameworkAssemblies)/mscorlib.dll
+  - (FrameworkAssemblies)/System.Core.dll
+  - (FrameworkAssemblies)/System.Data.DataSetExtensions.dll
+  - (FrameworkAssemblies)/System.Data.dll
+  - (FrameworkAssemblies)/System.dll
+  - (FrameworkAssemblies)/System.Net.Http.dll
+  - (FrameworkAssemblies)/System.Xml.dll
+  - (FrameworkAssemblies)/System.Xml.Linq.dll
+  sources:
+  - (IntermediateOutputPath)/.NETFramework,Version=v4.7.2.AssemblyAttributes.cs
+  - Class1.cs

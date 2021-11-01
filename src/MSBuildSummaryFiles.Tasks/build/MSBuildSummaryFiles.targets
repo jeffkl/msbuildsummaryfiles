@@ -31,15 +31,25 @@ Licensed under the MIT license.
   <Target Name="WriteTargetFrameworkSummaryFile"
           DependsOnTargets="GetTargetFrameworkSummaryFiles">
     <ItemGroup>
-      <_FolderRoots Remove="@(_FolderRoots)" />
-      <_FolderRoots Include="#OutputPath" Path="$([MSBuild]::NormalizePath($(OutputPath)))" />
-      <_FolderRoots Include="!IntermediateOutputPath" Path="$([MSBuild]::NormalizePath($(IntermediateOutputPath)))" />
-      <_FolderRoots Include="MSBuildProjectExtensionsPath" Path="$(MSBuildProjectExtensionsPath)" />
-      <_FolderRoots Include="NuGetPackageRoot" Path="$(NuGetPackageRoot)" />
-      <_FolderRoots Include="#MSBuildProjectDirectory" Path="$(MSBuildProjectDirectory)\" AllowRelative="true" />
-      <_FolderRoots Include="FrameworkAssemblies" Path="$(FrameworkPathOverride)" />
-      <_FolderRoots Include="MicrosoftNETBuildExtensions" Path="$([System.IO.Path]::GetDirectoryName($(MicrosoftNETBuildExtensionsTargets)))" />
-      <_FolderRoots Include="NetCoreTargetingPackRoot" Path="$(NetCoreTargetingPackRoot)" />
+      <_OutputFolderRoots Remove="@(_OutputFolderRoots)" />
+      <_OutputFolderRoots Include="!IntermediateOutputPath" Path="$([MSBuild]::NormalizePath($(IntermediateOutputPath)))" />
+      <_OutputFolderRoots Include="#OutputPath" Path="$([MSBuild]::NormalizePath($(OutputPath)))" AllowRelative="true" />
+      <_OutputFolderRoots Include="ProjectDirectory" Path="$(MSBuildProjectDirectory)\"  />
+
+      <_ReferenceFolderRoots Remove="@(_ReferenceFolderRoots)" />
+      <_ReferenceFolderRoots Include="IntermediateOutputPath" Path="$([MSBuild]::NormalizePath($(IntermediateOutputPath)))" />
+      <_ReferenceFolderRoots Include="MSBuildProjectExtensionsPath" Path="$(MSBuildProjectExtensionsPath)" />
+      <_ReferenceFolderRoots Include="NuGetPackageRoot" Path="$(NuGetPackageRoot)" />
+      <_ReferenceFolderRoots Include="FrameworkAssemblies" Path="$(FrameworkPathOverride)" />
+      <_ReferenceFolderRoots Include="MicrosoftNETBuildExtensions" Path="$([System.IO.Path]::GetDirectoryName($(MicrosoftNETBuildExtensionsTargets)))" />
+      <_ReferenceFolderRoots Include="NetCoreTargetingPackRoot" Path="$(NetCoreTargetingPackRoot)" />
+      <_ReferenceFolderRoots Include="#ProjectDirectory" Path="$(MSBuildProjectDirectory)\" AllowRelative="true" />
+
+      <_SourceFolderRoots Remove="@(_SourceFolderRoots)" />
+      <_SourceFolderRoots Include="IntermediateOutputPath" Path="$([MSBuild]::NormalizePath($(IntermediateOutputPath)))" />
+      <_SourceFolderRoots Include="MSBuildProjectExtensionsPath" Path="$(MSBuildProjectExtensionsPath)" />
+      <_SourceFolderRoots Include="NuGetPackageRoot" Path="$(NuGetPackageRoot)" />
+      <_SourceFolderRoots Include="#ProjectDirectory" Path="$(MSBuildProjectDirectory)\" AllowRelative="true" />
     </ItemGroup>
 
     <PropertyGroup>
@@ -48,13 +58,15 @@ Licensed under the MIT license.
     </PropertyGroup>
 
     <WriteTargetFrameworkSummaryFile
-      References="@(ReferencePathWithRefAssemblies)"
-      FolderRoots="@(_FolderRoots)"
       DefineConstants="$(DefineConstants)"
+      FilePath="@(TargetFrameworkSummaryFile)"
+      OutputFolderRoots="@(_OutputFolderRoots)"
+      Outputs="@(FileWrites)"
+      ReferenceFolderRoots="@(_ReferenceFolderRoots)"
+      References="@(ReferencePathWithRefAssemblies)"
+      SourceFolderRoots="@(_SourceFolderRoots)"
       Sources="@(Compile);@(EmbeddedResource)"
-      TargetFramework="$(_SummaryFileTargetFramework)"
-      FileWrites="@(FileWrites)"
-      FilePath="@(TargetFrameworkSummaryFile)" />
+      TargetFramework="$(_SummaryFileTargetFramework)" />
   </Target>
 
   <Target Name="WriteBuildSummaryFile"
@@ -71,7 +83,7 @@ Licensed under the MIT license.
     <ItemGroup Condition="'$(GeneratePackageOnBuild)' == 'true' And '$(ContinuePackingAfterGeneratingNuspec)' != 'false'">
       <_BuildOutputs Include="$(PackageOutputAbsolutePath)$(PackageId).(PackageVersion).nupkg" />
       <_BuildOutputs Include="$(PackageOutputAbsolutePath)$(PackageId).(PackageVersion).snupkg"
-                     Condition="'$(SymbolPackageFormat)' == 'nupkg' "/>
+                     Condition="'$(SymbolPackageFormat)' == 'nupkg' " />
     </ItemGroup>
 
     <WriteBuildSummaryFile SummaryFiles="@(TargetFrameworkSummaryFile)"

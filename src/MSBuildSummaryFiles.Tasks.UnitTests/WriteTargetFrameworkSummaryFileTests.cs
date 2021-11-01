@@ -41,21 +41,38 @@ namespace MSBuildSummaryFiles.Tasks.UnitTests
                     new TaskItem("TWO"),
                     new TaskItem("ONE"),
                 },
-                FileWrites = new ITaskItem[]
+                OutputFolderRoots = new ITaskItem[]
                 {
-                    new TaskItem(Path.Combine(ProjectsRoot, "ProjectA", "bin", "Debug", "net472", "ProjectA.dll")),
-                    new TaskItem(Path.Combine(ProjectsRoot, "ProjectA", "bin", "Debug", "net472", "ProjectA.pdb")),
-                },
-                FolderRoots = new ITaskItem[]
-                {
+                    new TaskItem("!IntermediateOutputPath", new Dictionary<string, string>
+                    {
+                        ["Path"] = Path.Combine(ProjectsRoot, "ProjectA", "obj", "Debug", "net472"),
+                    }),
                     new TaskItem("#OutputPath", new Dictionary<string, string>
                     {
                         ["Path"] = Path.Combine(ProjectsRoot, "ProjectA", "bin", "Debug", "net472"),
+                        ["AllowRelative"] = bool.TrueString,
                     }),
-                    new TaskItem("#MSBuildProjectDirectory", new Dictionary<string, string>
+                    new TaskItem("ProjectDirectory", new Dictionary<string, string>
                     {
                         ["Path"] = Path.Combine(ProjectsRoot, "ProjectA") + (withDirectorySeparatorChar ? Path.DirectorySeparatorChar : string.Empty),
-                        ["AllowRelative"] = bool.TrueString,
+                    }),
+                },
+                Outputs = new ITaskItem[]
+                {
+                    new TaskItem(Path.Combine(ProjectsRoot, "ProjectA", "bin", "Debug", "net472", "ProjectA.dll")),
+                    new TaskItem(Path.Combine(ProjectsRoot, "ProjectA", "bin", "Debug", "net472", "ProjectA.pdb")),
+                    new TaskItem(Path.Combine(ProjectsRoot, "ProjectA", "obj", "Debug", "net472", "ProjectA.dll")),
+                    new TaskItem(Path.Combine(ProjectsRoot, "ProjectA", "obj", "Debug", "net472", "ProjectA.pdb")),
+                },
+                ReferenceFolderRoots = new ITaskItem[]
+                {
+                    new TaskItem("IntermediateOutputPath", new Dictionary<string, string>
+                    {
+                        ["Path"] = Path.Combine(ProjectsRoot, "ProjectA", "obj", "Debug", "net472"),
+                    }),
+                    new TaskItem("MSBuildProjectExtensionsPath", new Dictionary<string, string>
+                    {
+                        ["Path"] = Path.Combine(ProjectsRoot, "ProjectA", "obj"),
                     }),
                     new TaskItem("NuGetPackageRoot", new Dictionary<string, string>
                     {
@@ -69,11 +86,36 @@ namespace MSBuildSummaryFiles.Tasks.UnitTests
                     {
                         ["Path"] = NetCoreTargetingPackRoot,
                     }),
+                    new TaskItem("#ProjectDirectory", new Dictionary<string, string>
+                    {
+                        ["Path"] = Path.Combine(ProjectsRoot, "ProjectA") + (withDirectorySeparatorChar ? Path.DirectorySeparatorChar : string.Empty),
+                        ["AllowRelative"] = bool.TrueString,
+                    }),
                 },
                 References = new ITaskItem[]
                 {
                     new TaskItem(Path.Combine(FrameworkAssembliesRoot, "Microsoft.CSharp.dll")),
                     new TaskItem(Path.Combine(NetCoreTargetingPackRoot, "Microsoft.NETCore.App.Ref", "net472", "Microsoft.CSharp.dll")),
+                },
+                SourceFolderRoots = new ITaskItem[]
+                {
+                    new TaskItem("IntermediateOutputPath", new Dictionary<string, string>
+                    {
+                        ["Path"] = Path.Combine(ProjectsRoot, "ProjectA", "obj", "Debug", "net472"),
+                    }),
+                    new TaskItem("MSBuildProjectExtensionsPath", new Dictionary<string, string>
+                    {
+                        ["Path"] = Path.Combine(ProjectsRoot, "ProjectA", "obj"),
+                    }),
+                    new TaskItem("NuGetPackageRoot", new Dictionary<string, string>
+                    {
+                        ["Path"] = PackageRoot + (withDirectorySeparatorChar ? Path.DirectorySeparatorChar : string.Empty),
+                    }),
+                    new TaskItem("#ProjectDirectory", new Dictionary<string, string>
+                    {
+                        ["Path"] = Path.Combine(ProjectsRoot, "ProjectA") + (withDirectorySeparatorChar ? Path.DirectorySeparatorChar : string.Empty),
+                        ["AllowRelative"] = bool.TrueString,
+                    }),
                 },
                 Sources = new ITaskItem[]
                 {
@@ -122,23 +164,6 @@ namespace MSBuildSummaryFiles.Tasks.UnitTests
                     new TaskItem("ONE"),
                     new TaskItem("TWO"),
                 },
-                FolderRoots = new ITaskItem[]
-                {
-                    new TaskItem("#MSBuildProjectDirectory", new Dictionary<string, string>
-                    {
-                        ["Path"] = Path.Combine(ProjectsRoot, "ProjectA"),
-                        ["AllowRelative"] = bool.TrueString,
-                    }),
-                    new TaskItem("NuGetPackageRoot", new Dictionary<string, string>
-                    {
-                        ["Path"] = PackageRoot,
-                    }),
-                },
-                Sources = new ITaskItem[]
-                {
-                    new TaskItem(Path.Combine(ProjectsRoot, "ProjectA", "Class1.cs")),
-                    new TaskItem(Path.GetFullPath(Path.Combine(ProjectsRoot, "ProjectA", "..", "Shared", "SharedClass.cs"))),
-                },
                 TargetFramework = "net472",
             };
 
@@ -154,14 +179,12 @@ namespace MSBuildSummaryFiles.Tasks.UnitTests
   outputs:
   references:
   sources:
-  - ../Shared/SharedClass.cs
-  - Class1.cs
 ",
                 StringCompareShould.IgnoreLineEndings);
         }
 
         [Fact]
-        public void MoreThanOneAllowRelativeTag_Throws()
+        public void MoreThanOneAllowRelativeTagLogsError()
         {
             FileInfo filePath = new FileInfo(GetTempFileName(".yml"));
 
@@ -172,7 +195,7 @@ namespace MSBuildSummaryFiles.Tasks.UnitTests
                 BuildEngine = buildEngine,
                 FilePath = filePath.FullName,
 
-                FolderRoots = new ITaskItem[]
+                SourceFolderRoots = new ITaskItem[]
                 {
                     new TaskItem("#MSBuildProjectDirectory", new Dictionary<string, string>
                     {
@@ -193,8 +216,9 @@ namespace MSBuildSummaryFiles.Tasks.UnitTests
                 TargetFramework = "net472",
             };
 
-            InvalidOperationException exception = Assert.Throws<InvalidOperationException>(() => task.Execute().ShouldBeTrue(buildEngine.GetConsoleLog()));
-            Assert.Equal("No more than 1 AllowRelative tag is permitted for roots.", exception.Message);
+            task.Execute().ShouldBeFalse(buildEngine.GetConsoleLog());
+
+            buildEngine.Errors.ShouldBe(new[] { Strings.DuplicateAllowRelative });
         }
 
         [Fact]
@@ -215,14 +239,7 @@ namespace MSBuildSummaryFiles.Tasks.UnitTests
                     new TaskItem("TWO"),
                     new TaskItem("ONE"),
                 },
-                FileWrites = new ITaskItem[]
-                {
-                    new TaskItem(Path.Combine(ProjectsRoot, "ProjectA", "bin", "Debug", "net472", "ProjectA.dll")),
-                    new TaskItem(Path.Combine(ProjectsRoot, "ProjectA", "bin", "Debug", "net472", "ProjectA.pdb")),
-                    new TaskItem(Path.Combine(ProjectsRoot, "ProjectA", "obj", "Debug", "net472", "ProjectA.dll")),
-                    new TaskItem(Path.Combine(ProjectsRoot, "ProjectA", "obj", "Debug", "net472", "ProjectA.pdb")),
-                },
-                FolderRoots = new ITaskItem[]
+                OutputFolderRoots = new ITaskItem[]
                 {
                     new TaskItem("#OutputPath", new Dictionary<string, string>
                     {
@@ -241,9 +258,34 @@ namespace MSBuildSummaryFiles.Tasks.UnitTests
                         ["Path"] = PackageRoot,
                     }),
                 },
+                Outputs = new ITaskItem[]
+                {
+                    new TaskItem(Path.Combine(ProjectsRoot, "ProjectA", "bin", "Debug", "net472", "ProjectA.dll")),
+                    new TaskItem(Path.Combine(ProjectsRoot, "ProjectA", "bin", "Debug", "net472", "ProjectA.pdb")),
+                    new TaskItem(Path.Combine(ProjectsRoot, "ProjectA", "obj", "Debug", "net472", "ProjectA.dll")),
+                    new TaskItem(Path.Combine(ProjectsRoot, "ProjectA", "obj", "Debug", "net472", "ProjectA.pdb")),
+                },
+                ReferenceFolderRoots = new ITaskItem[]
+                {
+                    new TaskItem("NuGetPackageRoot", new Dictionary<string, string>
+                    {
+                        ["Path"] = PackageRoot,
+                    }),
+                },
                 References = new ITaskItem[]
                 {
                     new TaskItem(Path.Combine(PackageRoot, "package.a", "1.0.0", "lib", "net472", "package.a.dll")),
+                },
+                SourceFolderRoots = new ITaskItem[]
+                {
+                    new TaskItem("IntermediateOutputPath", new Dictionary<string, string>
+                    {
+                        ["Path"] = intermediateOutputPath,
+                    }),
+                    new TaskItem("#ProjectDirectory", new Dictionary<string, string>
+                    {
+                        ["Path"] = Path.Combine(ProjectsRoot, "ProjectA"),
+                    }),
                 },
                 Sources = new ITaskItem[]
                 {
@@ -268,6 +310,7 @@ namespace MSBuildSummaryFiles.Tasks.UnitTests
   references:
   - (NuGetPackageRoot)/package.a/1.0.0/lib/net472/package.a.dll
   sources:
+  - (IntermediateOutputPath)/ProjectA.Version.cs
   - Class1.cs
 ",
                 StringCompareShould.IgnoreLineEndings);

@@ -21,6 +21,14 @@ namespace MSBuildSummaryFiles.Tasks
             }
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="MSBuildSummaryFileTaskBase" /> class.
+        /// </summary>
+        protected MSBuildSummaryFileTaskBase()
+        : base(Strings.ResourceManager)
+        {
+        }
+
         /// <inheritdoc cref="Task.Execute" />
         public override bool Execute()
         {
