@@ -1,6 +1,6 @@
 <Project>
   <PropertyGroup>
-    <MSBuildPackageVersion>16.11.0</MSBuildPackageVersion>
+    <MSBuildPackageVersion>17.0.0</MSBuildPackageVersion>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Update="Microsoft.Build.Utilities.Core" Version="$(MSBuildPackageVersion)" />
