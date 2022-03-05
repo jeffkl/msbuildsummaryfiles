@@ -5,6 +5,7 @@
 using Microsoft.Build.Utilities.ProjectCreation;
 using Shouldly;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using Xunit;
 
@@ -43,6 +44,24 @@ namespace MSBuildSummaryFiles.Tasks.UnitTests
             buildSummaryFilePath.ShouldNotBeNullOrEmpty();
 
             CompareSummaryFiles(nameof(SingleTargetingBuild), buildSummaryFilePath);
+        }
+
+        [Fact]
+        public void ExcludeAllSources()
+        {
+            var globalProperties = new Dictionary<string, string>();
+            globalProperties.Add("ExcludeSourcesInSummaryFile", "*");
+
+            CreateSdkStyleProject("netstandard2.0")
+                .Save(GetTempProjectFile("ProjectA", "Strings.resx"))
+                .TryBuild(restore: true, globalProperties: globalProperties, out bool result, out BuildOutput buildOutput)
+                .TryGetPropertyValue("BuildSummaryFilePath", out string buildSummaryFilePath);
+
+            result.ShouldBeTrue(buildOutput.GetConsoleLog());
+
+            buildSummaryFilePath.ShouldNotBeNullOrEmpty();
+
+            CompareSummaryFiles(nameof(ExcludeAllSources), buildSummaryFilePath);
         }
 
         [Fact]
