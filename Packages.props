@@ -15,7 +15,7 @@
     <GlobalPackageReference Include="Microsoft.Build.Artifacts" Version="4.0.4" Condition="'$(EnableArtifacts)' != 'false'" />
     <GlobalPackageReference Include="Microsoft.CodeAnalysis.CSharp.CodeStyle" Version="4.0.1" Condition="'$(EnableMicrosoftCodeAnalysisCSharpCodeStyle)' != 'false'" />
     <GlobalPackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" Condition="'$(EnableSourceLink)' != 'false'" />
-    <GlobalPackageReference Include="Nerdbank.GitVersioning" Version="3.4.244" Condition="'$(EnableGitVersioning)' != 'false'" />
+    <GlobalPackageReference Include="Nerdbank.GitVersioning" Version="3.5.119" Condition="'$(EnableGitVersioning)' != 'false'" />
     <GlobalPackageReference Include="StyleCop.Analyzers" Version="1.1.118" Condition="'$(EnableStyleCopAnalyzers)' != 'false'" />
   </ItemGroup>
 
