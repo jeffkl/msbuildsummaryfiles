@@ -57,6 +57,11 @@ Licensed under the MIT license.
       <_SummaryFileTargetFramework Condition="'$(_SummaryFileTargetFramework)' == '' And '$(_TargetFrameworkVersionWithoutV)' != ''">net$(_TargetFrameworkVersionWithoutV.Replace('.', ''))</_SummaryFileTargetFramework>
     </PropertyGroup>
 
+    <ItemGroup>
+      <SummarySourceFiles Include="@(Compile);@(EmbeddedResource)"/>
+      <SummarySourceFiles Remove="$(ExcludeSourcesInSummaryFile)" Condition="'$(ExcludeSourcesInSummaryFile)' != ''" />
+    </ItemGroup>
+
     <WriteTargetFrameworkSummaryFile
       DefineConstants="$(DefineConstants)"
       FilePath="@(TargetFrameworkSummaryFile)"
@@ -65,7 +70,7 @@ Licensed under the MIT license.
       ReferenceFolderRoots="@(_ReferenceFolderRoots)"
       References="@(ReferencePathWithRefAssemblies)"
       SourceFolderRoots="@(_SourceFolderRoots)"
-      Sources="@(Compile);@(EmbeddedResource)"
+      Sources="@(SummarySourceFiles)"
       TargetFramework="$(_SummaryFileTargetFramework)" />
   </Target>
 
