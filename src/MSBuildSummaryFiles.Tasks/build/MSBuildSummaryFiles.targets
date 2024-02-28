@@ -58,8 +58,8 @@ Licensed under the MIT license.
     </PropertyGroup>
 
     <ItemGroup>
-      <SourceFiles Include="@(Compile);@(EmbeddedResource)"/>
-      <SourceFiles Remove="$(ExcludeSourcesInSummaryFile)" Condition="'$(ExcludeSourcesInSummaryFile)' != ''" />
+      <SummarySourceFiles Include="@(Compile);@(EmbeddedResource)"/>
+      <SummarySourceFiles Remove="$(ExcludeSourcesInSummaryFile)" Condition="'$(ExcludeSourcesInSummaryFile)' != ''" />
     </ItemGroup>
 
     <WriteTargetFrameworkSummaryFile
@@ -70,7 +70,7 @@ Licensed under the MIT license.
       ReferenceFolderRoots="@(_ReferenceFolderRoots)"
       References="@(ReferencePathWithRefAssemblies)"
       SourceFolderRoots="@(_SourceFolderRoots)"
-      Sources="@(SourceFiles)"
+      Sources="@(SummarySourceFiles)"
       TargetFramework="$(_SummaryFileTargetFramework)" />
   </Target>
 
